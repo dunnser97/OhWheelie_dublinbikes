@@ -17,9 +17,12 @@ long = ''
 lat = ''
 time = ''
 longi = ''
+temp_val = ''
+cloudi_val = ''
+wind_val = ''
+rain_val = ''
 
-#fix this range
-for i in range(0, 100):
+for i in range(0, 50):
     for obj in weather_dic['product']['time'][i]:
         date = time[8:18]
         clock_time = time[19:27]
@@ -27,8 +30,8 @@ for i in range(0, 100):
         lati = ''
         # print(longi)
         longi = ''
-        print(date)
-        print(clock_time)
+        #print(date)
+        #print(clock_time)
         time = ''
         data_titles_overview = weather_dic['product']['time'][i]
         # print(data_titles_overview)
@@ -53,18 +56,29 @@ for i in range(0, 100):
                             column = key
                             data = weather_each[key2]
                             if column == 'temperature' and '@value' in key2:
-                                print(column, data)
+                                temp_val = data + ' '
+                                #print(column, data)
                             if column == 'humidity' and '@value' in key2:
-                                print(column, data)
+                                humidity_val = data
                             if column == 'cloudiness' and '@percent' in key2:
-                                print(column, data)
+                                cloudi_val = data
+                                #print(column, data)
                             if column == 'windSpeed' and'@mps' in key2:
-                                print(column, data)
+                                wind_val = data
+                                #print(column, data)
                             if column == 'precipitation' and '@value' in key2:
-                                #fix precip
-                                #other vales are @minvalue @maxvalue @probability
-                                print(column, data)
-                                break
+                                rain_val = data
 
-                            # print(key2, weather_each[key2])
-                            # print(column, data)
+
+        if temp_val == '':
+            pass
+        else:
+            #weather_db(date, clock_time, temp_val, wind_val, cloudi_val, rain_val, longi,
+            #            lati)
+            print(date + ' '  + clock_time + ' ' + temp_val + ' ' + wind_val + ' ' + cloudi_val + ' ' + rain_val)
+            temp_val = ''
+            wind_val = ''
+            cloudi_val = ''
+            rain_val = ''
+        break
+
