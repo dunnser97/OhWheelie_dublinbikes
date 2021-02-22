@@ -2,7 +2,10 @@ import json
 import xmltodict
 import requests
 
-URL = "http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=54.7211;long=-8.7237"
+lat = "54.7211"
+long= "-8.7237"
+
+URL = "http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=" + lat + ";long=" + long
 
 response = requests.get(URL)
 xmltxt = response.content
@@ -13,9 +16,9 @@ json_weather = json.dumps(x)
 weather_obj = json.loads(json_weather)
 weather_dic = weather_obj['weatherdata']
 
-lati, time, longi, temp_val, cloudi_val, wind_val, rain_val, clock_time, date = '', '', '', '', '', '', '', '', ''
+time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date = '', '', '', '', '', '', ''
 
-for i in range(0, 40):
+for i in range(0, 48, 2):
     for obj in weather_dic['product']['time'][i]:
         data_titles_overview = weather_dic['product']['time'][i]
         for data in data_titles_overview:
@@ -28,10 +31,6 @@ for i in range(0, 40):
                     date = time[8:18]
                 if len(key) > 1:
                     weather_each = weather_status[key]
-                    if key == '@latitude':
-                        lati = weather_status[key]
-                    if key == '@longitude':
-                        longi = weather_status[key]
                     for key2 in weather_each:
                         if not isinstance(weather_each, dict):
                             pass
@@ -51,10 +50,7 @@ for i in range(0, 40):
         if temp_val == '':
             pass
         else:
-            # weather_db(date, clock_time, temp_val, wind_val, cloudi_val, rain_val, longi,
-            #            lati)
-            print(date + ' ' + clock_time + ' ' + temp_val + ' ' + wind_val + ' ' + cloudi_val + ' ' + rain_val
-                  + " " + longi + " " + lati)
+            print(date + ' ' + clock_time + ' ' + temp_val + ' ' + wind_val + ' ' + cloudi_val + ' ' + rain_val)
             temp_val = ''
             wind_val = ''
             cloudi_val = ''
@@ -62,6 +58,4 @@ for i in range(0, 40):
             clock_time = ''
             date = ''
             time = ''
-            longi = ''
-            lati = ''
             break
