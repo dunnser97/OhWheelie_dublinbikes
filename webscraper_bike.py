@@ -2,6 +2,7 @@ import requests
 import json
 import time
 import mysql.connector
+import datetime
 
 APIKEY = "7188e828188de75359fb293a4f4fd405a53fdfe8"
 NAME = "Dublin"
@@ -23,7 +24,8 @@ def main():
                 bs = bikes_obj[i]["bike_stands"]
                 bonus = bikes_obj[i]["bonus"]
                 cn = bikes_obj[i]["contract_name"]
-                last_update = bikes_obj[i]["last_update"]
+                last_update = datetime.datetime.fromtimestamp(bikes_obj[i]["last_update"] / 1e3)
+                print(last_update)
                 name = bikes_obj[i]["name"]
                 number = bikes_obj[i]["number"]
                 latitude = bikes_obj[i]["position"]["lat"]
@@ -40,7 +42,10 @@ def main():
 
 def stations_db(x):
     try:
-        sql = "INSERT INTO dbbikes_info (address, available_bike_stands, available_bikes, banking , bike_stands, bonus, contract_name, last_update, name, number, latitude, longitude, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        sql = "INSERT INTO dbbikes_info (address, available_bike_stands, available_bikes, " \
+              "banking , bike_stands, bonus, contract_name, last_update, name, number, " \
+              "latitude, longitude, status) " \
+              "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
         mydb = mysql.connector.connect(
             host="dbbikes-kms.cb4a7u7bkk6j.us-east-1.rds.amazonaws.com",
@@ -50,6 +55,7 @@ def stations_db(x):
             charset='utf8mb4',
         )
         mycursor = mydb.cursor(dictionary=False)
+
         """
         mycursor.execute("CREATE TABLE dbbikes_info ( address VARCHAR(100), "
                          "available_bike_stands INT, available_bikes INT, "
@@ -58,6 +64,7 @@ def stations_db(x):
                          "name VARCHAR(100), number INT, latitude VARCHAR(25), "
                          "longitude VARCHAR(25),  status VARCHAR(20)) ")
         """
+
         print("Connected to database! Yay :smile: :D")
         mycursor.executemany(sql, x)
         mydb.commit()
@@ -65,6 +72,3 @@ def stations_db(x):
         print(e)
         print("Database Failed!")
         return
-
-
-main()
