@@ -4,12 +4,12 @@ import requests
 
 from datetime import datetime, timedelta
 
-#set current time, rounded up to the hour
-current_time = datetime.now() + timedelta(hours=1)
-current_time = current_time.strftime("%H:%M:%S")
-current_time = current_time[0:2] + ":00:00"
-
 def weather_retrieval(latitude, longitude):
+
+    # set current time, rounded up to the hour
+    current_time = datetime.now() + timedelta(hours=1)
+    current_time = current_time.strftime("%H:%M:%S")
+    current_time = current_time[0:2] + ":00:00"
 
     URL = "http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=" + str(latitude) + ";long=" + str(longitude)
 
