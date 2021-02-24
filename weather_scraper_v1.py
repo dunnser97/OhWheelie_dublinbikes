@@ -1,12 +1,15 @@
 import json
 import xmltodict
 import requests
+import mysql.connector
+import time
 
 from datetime import datetime, timedelta
 
 def weather_retrieval(latitude, longitude):
+    '''Function which takes any given latitude and longitude,'''
 
-    # set current time, rounded up to the hour
+    #Set current time, rounded up to the hour
     current_time = datetime.now() + timedelta(hours=1)
     current_time = current_time.strftime("%H:%M:%S")
     current_time = current_time[0:2] + ":00:00"
@@ -22,12 +25,13 @@ def weather_retrieval(latitude, longitude):
     weather_obj = json.loads(json_weather)
     weather_dic = weather_obj['weatherdata']
 
-    time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date, humidity_val = '', '', '', '', '', '', '', ''
+    weather_symbol, time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date, humidity_val = '', '', '', '', '', '', '', '', ''
 
     #Loop through XML
     for i in range(0, 48, 2):
         for obj in weather_dic['product']['time'][i]:
             data_titles_overview = weather_dic['product']['time'][i]
+            data_titles_overview_rain = weather_dic['product']['time'][i+1]
             for data in data_titles_overview:
                 weather_status = data_titles_overview[data]
                 for key in weather_status:
@@ -51,23 +55,61 @@ def weather_retrieval(latitude, longitude):
                                     cloudi_val = data
                                 elif column == 'windSpeed' and '@mps' in key2:
                                     wind_val = data
-                                elif column == 'precipitation' and '@value' in key2:
+            for data in data_titles_overview_rain:
+                weather_status = data_titles_overview_rain[data]
+                for key in weather_status:
+                    if len(key) > 1:
+                        weather_each = weather_status[key]
+                        for key2 in weather_each:
+                            if not isinstance(weather_each, dict):
+                                pass
+                            else:
+                                column = key
+                                data = weather_each[key2]
+                                if column == 'precipitation' and '@value' in key2:
                                     rain_val = data
+                                elif column == 'symbol' and '@id' in key2:
+                                    weather_symbol = data
             if temp_val == '':
                 pass
             else:
+                info_weather = ()
+                info_weather = info_weather +((date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol),)
                 if clock_time == current_time:
-                    # If weather data is the closest forecast
-                    print("PLACEHOLDER: WRITE THIS DATA TO WEATHER HISTORY DB")
-                print(date + ' ' + clock_time + ' ' + temp_val + ' ' + wind_val + ' ' + cloudi_val + ' ' + rain_val + ' ' + humidity_val)
-                temp_val = ''
-                wind_val = ''
-                cloudi_val = ''
-                rain_val = ''
-                clock_time = ''
-                date = ''
-                time = ''
-                humidity_val = ''
+                    #If weather data is the closest forecast
+                    weather_db(info_weather)
+                    print("DATE:" + date + '  TIME:' + clock_time + '  Temperature:' + temp_val + ' Wind:' + wind_val + '  Cloudiness:' + cloudi_val + '  Rain:' + rain_val + '  Humidity:' + humidity_val + '  Weather Symbol:' + weather_symbol)
+                weather_symbol, time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date, humidity_val = '', '', '', '', '', '', '', '', ''
                 break
 
-weather_retrieval(53.2734, -7.77832031)
+
+def weather_db(x):
+    try:
+        sql = "INSERT INTO weather_history (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+        mydb = mysql.connector.connect(
+            host="",
+            user="",
+            passwd="",
+            database="",
+            charset="",
+        )
+        mycursor = mydb.cursor(dictionary=False)
+        '''
+        mycursor.execute("CREATE TABLE weather_history (date DATE, "
+                         "clock_time VARCHAR(20), latitude DOUBLE, "
+                         "longitude DOUBLE, temp_val DOUBLE, humidity_val DOUBLE, "
+                         "cloudi_val DOUBLE, rain_val DOUBLE, "
+                         "wind_val DOUBLE, weather_symbol VARCHAR(30) ")
+        '''
+        mycursor.executemany(sql, x)
+        mydb.commit()
+        print("Weather written to Database")
+    except Exception as e:
+        print(e)
+        print("ERROR: Database Failed!")
+        return
+
+while True:
+    weather_retrieval(51.2734, -20.77832031)
+    time.sleep(60 * 60)
