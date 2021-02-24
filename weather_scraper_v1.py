@@ -7,6 +7,13 @@ import time
 from datetime import datetime, timedelta
 
 def weather_retrieval(latitude, longitude):
+    ## IDEA FOR SCRAPER IS TO INSERT ARGS THAT CHANGE THE RANGE
+    ## so will look like def weather_retrieval(latitude, longitude, *args)
+    ## when args = '', make range 48 just and do the current weather push to history db
+    ## when args == 'forecast', range == 100 and push the weather for the next 48 hours to forecast table
+    ## when user wants forcast for x station tomorrow, scraper extends range and sends to the forecast db
+    ## then query whichever time they want to get weather and send to ML algorithm for prediction
+    ## clear the forecast db every few hours because they change so frequently
     '''Function which takes any given latitude and longitude,'''
 
     #Set current time, rounded up to the hour
@@ -28,7 +35,7 @@ def weather_retrieval(latitude, longitude):
     weather_symbol, time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date, humidity_val = '', '', '', '', '', '', '', '', ''
 
     #Loop through XML
-    for i in range(0, 48, 2):
+    for i in range(1, 48):
         for obj in weather_dic['product']['time'][i]:
             data_titles_overview = weather_dic['product']['time'][i]
             data_titles_overview_rain = weather_dic['product']['time'][i+1]
@@ -55,18 +62,7 @@ def weather_retrieval(latitude, longitude):
                                     cloudi_val = data
                                 elif column == 'windSpeed' and '@mps' in key2:
                                     wind_val = data
-            for data in data_titles_overview_rain:
-                weather_status = data_titles_overview_rain[data]
-                for key in weather_status:
-                    if len(key) > 1:
-                        weather_each = weather_status[key]
-                        for key2 in weather_each:
-                            if not isinstance(weather_each, dict):
-                                pass
-                            else:
-                                column = key
-                                data = weather_each[key2]
-                                if column == 'precipitation' and '@value' in key2:
+                                elif column == 'precipitation' and '@value' in key2:
                                     rain_val = data
                                 elif column == 'symbol' and '@id' in key2:
                                     weather_symbol = data
@@ -95,13 +91,14 @@ def weather_db(x):
             charset="",
         )
         mycursor = mydb.cursor(dictionary=False)
-        '''
-        mycursor.execute("CREATE TABLE weather_history (date DATE, "
+
+        mycursor.execute(" SELECT count(*) FROM weather_hourDB.weather_history")
+        if (mycursor.fetchone()[0] == 0):
+            mycursor.execute("CREATE TABLE weather_history (date DATE, "
                          "clock_time VARCHAR(20), latitude DOUBLE, "
                          "longitude DOUBLE, temp_val DOUBLE, humidity_val DOUBLE, "
                          "cloudi_val DOUBLE, rain_val DOUBLE, "
-                         "wind_val DOUBLE, weather_symbol VARCHAR(30) ")
-        '''
+                         "wind_val DOUBLE, weather_symbol VARCHAR(30)) ")
         mycursor.executemany(sql, x)
         mydb.commit()
         print("Weather written to Database")
