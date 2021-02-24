@@ -25,7 +25,6 @@ def main():
                 bonus = bikes_obj[i]["bonus"]
                 cn = bikes_obj[i]["contract_name"]
                 last_update = datetime.datetime.fromtimestamp(bikes_obj[i]["last_update"] / 1e3)
-                print(last_update)
                 name = bikes_obj[i]["name"]
                 number = bikes_obj[i]["number"]
                 latitude = bikes_obj[i]["position"]["lat"]
@@ -34,7 +33,7 @@ def main():
                 info_bikes = info_bikes + ((address, abs, ab, banking, bs, bonus, cn,
                                             last_update, name, number, latitude, longitude, status),)
             stations_db(info_bikes)
-            time.sleep(5 * 60)
+            time.sleep(8 * 60)
         except:
             print("Broke")
             return
@@ -43,7 +42,12 @@ def main():
 def stations_db(x):
     try:
         sql = "INSERT INTO dbbikes_info (address, available_bike_stands, available_bikes, " \
-              "banking , bike_stands, bonus, contract_name, last_update, name, number, " \
+              "banking , bike_stands, bonus, contract_name, last_update, name, Station_number, " \
+              "latitude, longitude, status) " \
+              "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+        current_bikes = "INSERT INTO dbbikes_current_info (address, available_bike_stands, available_bikes, " \
+              "banking , bike_stands, bonus, contract_name, last_update, name, Station_number, " \
               "latitude, longitude, status) " \
               "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
@@ -55,20 +59,40 @@ def stations_db(x):
             charset='utf8mb4',
         )
         mycursor = mydb.cursor(dictionary=False)
-
-        """
-        mycursor.execute("CREATE TABLE dbbikes_info ( address VARCHAR(100), "
-                         "available_bike_stands INT, available_bikes INT, "
-                         "banking VARCHAR(20), bike_stands INT, bonus VARCHAR(20), "
-                         "contract_name VARCHAR(20), last_update DATETIME, "
-                         "name VARCHAR(100), number INT, latitude VARCHAR(25), "
-                         "longitude VARCHAR(25),  status VARCHAR(20)) ")
-        """
-
-        print("Connected to database! Yay :smile: :D")
+        mycursor.execute(" SELECT count(*) FROM information_schema.tables WHERE table_name = 'dbbikes_info'")
+        if (mycursor.fetchone()[0] == 0):
+            mycursor.execute("CREATE TABLE dbbikes_info ( id INT PRIMARY KEY AUTO_INCREMENT, address VARCHAR(100), "
+                            "available_bike_stands INT, available_bikes INT, "
+                            "banking VARCHAR(20), bike_stands INT, bonus VARCHAR(20), "
+                             "contract_name VARCHAR(20), last_update DATETIME, "
+                             "name VARCHAR(100), Station_number INT, latitude VARCHAR(25), "
+                             "longitude VARCHAR(25),  status VARCHAR(20)) ")
         mycursor.executemany(sql, x)
+
+        mydb.commit()
+
+        mycursor.execute("Delete temp1 "
+                         "from dbbikes_info as temp1 "
+                         "Inner Join dbbikes_info as temp2 "
+                         "where temp1.id < temp2.id "
+                         "and temp1.last_update = temp2.last_update;")
+        mydb.commit()
+
+        mycursor.execute(" SELECT count(*) FROM information_schema.tables WHERE table_name = 'dbbikes_current_info'")
+
+        if (mycursor.fetchone()[0] == 0):
+            mycursor.execute("CREATE TABLE dbbikes_current_info ( id INT PRIMARY KEY AUTO_INCREMENT, address VARCHAR(100), "
+                            "available_bike_stands INT, available_bikes INT, "
+                            "banking VARCHAR(20), bike_stands INT, bonus VARCHAR(20), "
+                             "contract_name VARCHAR(20), last_update DATETIME, "
+                             "name VARCHAR(100), Station_number INT, latitude VARCHAR(25), "
+                             "longitude VARCHAR(25),  status VARCHAR(20)) ")
+        mycursor.execute("truncate dbbikes_current_info;")
+        mydb.commit()
+        mycursor.executemany(current_bikes, x)
         mydb.commit()
     except Exception as e:
         print(e)
         print("Database Failed!")
         return
+
