@@ -16,27 +16,33 @@ def main():
                              params={"apiKey": APIKEY, "contract": NAME})
             bikes_obj = json.loads(r.text)
             info_bikes = ()
+
             for i in range(0, len(bikes_obj) - 1):
-                address = bikes_obj[i]["address"]
-                abs = bikes_obj[i]["available_bike_stands"]
-                ab = bikes_obj[i]["available_bikes"]
-                banking = bikes_obj[i]["banking"]
-                bs = bikes_obj[i]["bike_stands"]
-                bonus = bikes_obj[i]["bonus"]
-                cn = bikes_obj[i]["contract_name"]
-                last_update = datetime.datetime.fromtimestamp(bikes_obj[i]["last_update"] / 1e3)
-                name = bikes_obj[i]["name"]
-                number = bikes_obj[i]["number"]
-                latitude = bikes_obj[i]["position"]["lat"]
-                longitude = bikes_obj[i]["position"]["lng"]
-                status = bikes_obj[i]["status"]
-                info_bikes = info_bikes + ((address, abs, ab, banking, bs, bonus, cn,
-                                            last_update, name, number, latitude, longitude, status),)
+                try:
+                    address = bikes_obj[i]["address"]
+                    abs = bikes_obj[i]["available_bike_stands"]
+                    ab = bikes_obj[i]["available_bikes"]
+                    banking = bikes_obj[i]["banking"]
+                    bs = bikes_obj[i]["bike_stands"]
+                    bonus = bikes_obj[i]["bonus"]
+                    cn = bikes_obj[i]["contract_name"]
+                    last_update = datetime.datetime.fromtimestamp(bikes_obj[i]["last_update"] / 1e3)
+                    name = bikes_obj[i]["name"]
+                    number = bikes_obj[i]["number"]
+                    latitude = bikes_obj[i]["position"]["lat"]
+                    longitude = bikes_obj[i]["position"]["lng"]
+                    status = bikes_obj[i]["status"]
+                    info_bikes = info_bikes + ((address, abs, ab, banking, bs, bonus, cn,
+                                                last_update, name, number, latitude, longitude, status),)
+                except:
+                    print("Error with station", str(bikes_obj[i]["number"]))
+                    print(bikes_obj[i])
+
             stations_db(info_bikes)
             time.sleep(8 * 60)
-        except:
-            print("Broke")
-            return
+        except Exception as e:
+            print(e)
+            time.sleep(8 * 60)
 
 
 def stations_db(x):
@@ -52,11 +58,11 @@ def stations_db(x):
               "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
         mydb = mysql.connector.connect(
-            host="dbbikes-kms.cb4a7u7bkk6j.us-east-1.rds.amazonaws.com",
-            user="Shane",
-            passwd="Oh_Wheeliekms",
-            database="dbbikes",
-            charset='utf8mb4',
+            host="",
+            user="",
+            passwd="",
+            database="",
+            charset='',
         )
         mycursor = mydb.cursor(dictionary=False)
         mycursor.execute(" SELECT count(*) FROM information_schema.tables WHERE table_name = 'dbbikes_info'")
@@ -68,7 +74,6 @@ def stations_db(x):
                              "name VARCHAR(100), Station_number INT, latitude VARCHAR(25), "
                              "longitude VARCHAR(25),  status VARCHAR(20)) ")
         mycursor.executemany(sql, x)
-
         mydb.commit()
 
         mycursor.execute("Delete temp1 "
@@ -95,4 +100,3 @@ def stations_db(x):
         print(e)
         print("Database Failed!")
         return
-
