@@ -4,9 +4,11 @@ import requests
 import mysql.connector
 import dbinfo
 
-print(dbinfo.host)
-
 from datetime import datetime, timedelta
+
+print("WEATHER SCRIPT START:", datetime.now())
+
+print("Writing to:", dbinfo.host)
 
 mydb = mysql.connector.connect(
             host=dbinfo.host,
@@ -95,7 +97,6 @@ def weather_retrieval(latitude, longitude):
                     #If weather data is the closest forecast
                     weather_db(info_weather, "history")
                 weather_db(info_weather, "forecast")
-                print("DATE:" + date + '  TIME:' + clock_time + '  Temperature:' + temp_val + ' Wind:' + wind_val + '  Cloudiness:' + cloudi_val + '  Rain:' + rain_val + '  Humidity:' + humidity_val + '  Weather Symbol:' + weather_symbol)
                 weather_symbol, time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date, humidity_val = '', '', '', '', '', '', '', '', ''
                 break
 
@@ -109,7 +110,7 @@ def weather_db(x, table):
 
         mycursor.executemany(sql, x)
         mydb.commit()
-        print("Weather written to Database")
+
     except Exception as e:
         print(e)
         print("ERROR: Database Failed!")
@@ -129,8 +130,10 @@ for i in range(0, len(bikes_obj) - 1):
     try:
         latitude = bikes_obj[i]["position"]["lat"]
         longitude = bikes_obj[i]["position"]["lng"]
+        print("WRITING STATION: Latitude =", latitude,'| Longitude =', longitude)
+        weather_retrieval(latitude, longitude)
     except:
         print("Error with station", str(bikes_obj[i]["number"]))
         print(bikes_obj[i])
 
-    weather_retrieval(latitude, longitude)
+print("WEATHER SCRIPT FINISHED:", datetime.now())
