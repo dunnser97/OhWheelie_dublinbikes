@@ -2,19 +2,40 @@ import json
 import xmltodict
 import requests
 import mysql.connector
-import time
+import dbinfo
+
+print(dbinfo.host)
 
 from datetime import datetime, timedelta
 
+mydb = mysql.connector.connect(
+            host=dbinfo.host,
+            user=dbinfo.user,
+            passwd=dbinfo.passwd,
+            database=dbinfo.database,
+            charset=dbinfo.charset
+        )
+
+#Check if both tables exist. If they don't, create them.
+mycursor = mydb.cursor(dictionary=False)
+mycursor.execute(" SELECT count(*) FROM information_schema.tables WHERE table_name = 'weather_history'")
+if (mycursor.fetchone()[0] == 0):
+    mycursor.execute("CREATE TABLE weather_history (date DATE, "
+                 "clock_time VARCHAR(20), latitude DOUBLE, "
+                 "longitude DOUBLE, temp_val DOUBLE, humidity_val DOUBLE, "
+                 "cloudi_val DOUBLE, rain_val DOUBLE, "
+                 "wind_val DOUBLE, weather_symbol VARCHAR(30)) ")
+
+mycursor.execute(" SELECT count(*) FROM information_schema.tables WHERE table_name = 'weather_forecast'")
+if (mycursor.fetchone()[0] == 0):
+    mycursor.execute("CREATE TABLE weather_forecast (date DATE, "
+                 "clock_time VARCHAR(20), latitude DOUBLE, "
+                 "longitude DOUBLE, temp_val DOUBLE, humidity_val DOUBLE, "
+                 "cloudi_val DOUBLE, rain_val DOUBLE, "
+                 "wind_val DOUBLE, weather_symbol VARCHAR(30)) ")
+
 def weather_retrieval(latitude, longitude):
-    ## IDEA FOR SCRAPER IS TO INSERT ARGS THAT CHANGE THE RANGE
-    ## so will look like def weather_retrieval(latitude, longitude, *args)
-    ## when args = '', make range 48 just and do the current weather push to history db
-    ## when args == 'forecast', range == 100 and push the weather for the next 48 hours to forecast table
-    ## when user wants forcast for x station tomorrow, scraper extends range and sends to the forecast db
-    ## then query whichever time they want to get weather and send to ML algorithm for prediction
-    ## clear the forecast db every few hours because they change so frequently
-    '''Function which takes any given latitude and longitude,'''
+    #Function which takes any given latitude and longitude, and writes the 24 hour forecast to database (forecast table) AS WELL as the current weather condition (weather history table).
 
     #Set current time, rounded up to the hour
     current_time = datetime.now() + timedelta(hours=1)
@@ -35,10 +56,9 @@ def weather_retrieval(latitude, longitude):
     weather_symbol, time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date, humidity_val = '', '', '', '', '', '', '', '', ''
 
     #Loop through XML
-    for i in range(1, 48):
+    for i in range(1, 49):
         for obj in weather_dic['product']['time'][i]:
             data_titles_overview = weather_dic['product']['time'][i]
-            data_titles_overview_rain = weather_dic['product']['time'][i+1]
             for data in data_titles_overview:
                 weather_status = data_titles_overview[data]
                 for key in weather_status:
@@ -73,32 +93,20 @@ def weather_retrieval(latitude, longitude):
                 info_weather = info_weather +((date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol),)
                 if clock_time == current_time:
                     #If weather data is the closest forecast
-                    weather_db(info_weather)
-                    print("DATE:" + date + '  TIME:' + clock_time + '  Temperature:' + temp_val + ' Wind:' + wind_val + '  Cloudiness:' + cloudi_val + '  Rain:' + rain_val + '  Humidity:' + humidity_val + '  Weather Symbol:' + weather_symbol)
+                    weather_db(info_weather, "history")
+                weather_db(info_weather, "forecast")
+                print("DATE:" + date + '  TIME:' + clock_time + '  Temperature:' + temp_val + ' Wind:' + wind_val + '  Cloudiness:' + cloudi_val + '  Rain:' + rain_val + '  Humidity:' + humidity_val + '  Weather Symbol:' + weather_symbol)
                 weather_symbol, time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date, humidity_val = '', '', '', '', '', '', '', '', ''
                 break
 
 
-def weather_db(x):
+def weather_db(x, table):
     try:
-        sql = "INSERT INTO weather_history (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        if table == "history":
+            sql = "INSERT INTO weather_history (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        else:
+            sql = "INSERT INTO weather_forecast (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-        mydb = mysql.connector.connect(
-            host="",
-            user="",
-            passwd="",
-            database="",
-            charset="",
-        )
-        mycursor = mydb.cursor(dictionary=False)
-
-        mycursor.execute(" SELECT count(*) FROM weather_hourDB.weather_history")
-        if (mycursor.fetchone()[0] == 0):
-            mycursor.execute("CREATE TABLE weather_history (date DATE, "
-                         "clock_time VARCHAR(20), latitude DOUBLE, "
-                         "longitude DOUBLE, temp_val DOUBLE, humidity_val DOUBLE, "
-                         "cloudi_val DOUBLE, rain_val DOUBLE, "
-                         "wind_val DOUBLE, weather_symbol VARCHAR(30)) ")
         mycursor.executemany(sql, x)
         mydb.commit()
         print("Weather written to Database")
@@ -107,6 +115,22 @@ def weather_db(x):
         print("ERROR: Database Failed!")
         return
 
-while True:
-    weather_retrieval(51.2734, -20.77832031)
-    time.sleep(60 * 60)
+
+APIKEY = dbinfo.APIKEY
+NAME = "Dublin"
+Stations = "https://api.jcdecaux.com/vls/v1/stations"
+
+r = requests.get(Stations,
+                 params={"apiKey": APIKEY, "contract": NAME})
+bikes_obj = json.loads(r.text)
+info_bikes = ()
+
+for i in range(0, len(bikes_obj) - 1):
+    try:
+        latitude = bikes_obj[i]["position"]["lat"]
+        longitude = bikes_obj[i]["position"]["lng"]
+    except:
+        print("Error with station", str(bikes_obj[i]["number"]))
+        print(bikes_obj[i])
+
+    weather_retrieval(latitude, longitude)
