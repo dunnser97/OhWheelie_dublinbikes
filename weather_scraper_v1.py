@@ -3,8 +3,14 @@ import xmltodict
 import requests
 import mysql.connector
 import dbinfo
-
 from datetime import datetime, timedelta
+
+# Set current time, rounded up to the hour (format for XML).
+current_time = datetime.now() + timedelta(hours=1)
+current_time = current_time.strftime("%H:%M:%S")
+current_time = current_time[0:2] + ":00:00"
+
+
 
 print("WEATHER SCRIPT START:", datetime.now())
 
@@ -26,7 +32,7 @@ if (mycursor.fetchone()[0] == 0):
                  "clock_time VARCHAR(20), latitude DOUBLE, "
                  "longitude DOUBLE, temp_val DOUBLE, humidity_val DOUBLE, "
                  "cloudi_val DOUBLE, rain_val DOUBLE, "
-                 "wind_val DOUBLE, weather_symbol VARCHAR(30)) ")
+                 "wind_val DOUBLE, weather_symbol VARCHAR(30), time_added INT, date_added DATE) ")
 
 mycursor.execute(" SELECT count(*) FROM information_schema.tables WHERE table_name = 'weather_forecast'")
 if (mycursor.fetchone()[0] == 0):
@@ -34,15 +40,10 @@ if (mycursor.fetchone()[0] == 0):
                  "clock_time VARCHAR(20), latitude DOUBLE, "
                  "longitude DOUBLE, temp_val DOUBLE, humidity_val DOUBLE, "
                  "cloudi_val DOUBLE, rain_val DOUBLE, "
-                 "wind_val DOUBLE, weather_symbol VARCHAR(30)) ")
+                 "wind_val DOUBLE, weather_symbol VARCHAR(30), time_added INT, date_added DATE)")
 
 def weather_retrieval(latitude, longitude):
     #Function which takes any given latitude and longitude, and writes the 24 hour forecast to database (forecast table) AS WELL as the current weather condition (weather history table).
-
-    #Set current time, rounded up to the hour
-    current_time = datetime.now() + timedelta(hours=1)
-    current_time = current_time.strftime("%H:%M:%S")
-    current_time = current_time[0:2] + ":00:00"
 
     URL = "http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=" + str(latitude) + ";long=" + str(longitude)
 
@@ -92,7 +93,10 @@ def weather_retrieval(latitude, longitude):
                 pass
             else:
                 info_weather = ()
-                info_weather = info_weather +((date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol),)
+                time_added = current_time[0:2]
+                date_added = datetime.today().strftime('%Y-%m-%d')
+                #date_added = datetime.date()
+                info_weather = info_weather +((date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol, time_added, date_added),)
                 if clock_time == current_time:
                     #If weather data is the closest forecast
                     weather_db(info_weather, "history")
@@ -104,9 +108,9 @@ def weather_retrieval(latitude, longitude):
 def weather_db(x, table):
     try:
         if table == "history":
-            sql = "INSERT INTO weather_history (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            sql = "INSERT INTO weather_history (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol, time_added, date_added) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         else:
-            sql = "INSERT INTO weather_forecast (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            sql = "INSERT INTO weather_forecast (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol, time_added, date_added) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
         mycursor.executemany(sql, x)
         mydb.commit()
@@ -115,7 +119,6 @@ def weather_db(x, table):
         print(e)
         print("ERROR: Database Failed!")
         return
-
 
 APIKEY = dbinfo.APIKEY
 NAME = "Dublin"
@@ -135,5 +138,12 @@ for i in range(0, len(bikes_obj) - 1):
     except:
         print("Error with station", str(bikes_obj[i]["number"]))
         print(bikes_obj[i])
+
+try:
+    date = datetime.today().strftime('%Y-%m-%d')
+    mycursor.execute("DELETE FROM weather_forecast WHERE time_added < " + str(current_time[0:2]) + " AND date_added <='" + date + "'")
+    mydb.commit()
+except:
+    print("Error deleting previous forecast.")
 
 print("WEATHER SCRIPT FINISHED:", datetime.now())
