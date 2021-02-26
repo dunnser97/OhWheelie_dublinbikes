@@ -4,13 +4,14 @@ import requests
 import mysql.connector
 import dbinfo
 from datetime import datetime, timedelta
+import time
+
+epoch_start_time = time.time()
 
 # Set current time, rounded up to the hour (format for XML).
 current_time = datetime.now() + timedelta(hours=1)
 current_time = current_time.strftime("%H:%M:%S")
 current_time = current_time[0:2] + ":00:00"
-
-
 
 print("WEATHER SCRIPT START:", datetime.now())
 
@@ -32,7 +33,7 @@ if (mycursor.fetchone()[0] == 0):
                  "clock_time VARCHAR(20), latitude DOUBLE, "
                  "longitude DOUBLE, temp_val DOUBLE, humidity_val DOUBLE, "
                  "cloudi_val DOUBLE, rain_val DOUBLE, "
-                 "wind_val DOUBLE, weather_symbol VARCHAR(30), time_added INT, date_added DATE) ")
+                 "wind_val DOUBLE, weather_symbol VARCHAR(30), time_added INT) ")
 
 mycursor.execute(" SELECT count(*) FROM information_schema.tables WHERE table_name = 'weather_forecast'")
 if (mycursor.fetchone()[0] == 0):
@@ -40,7 +41,7 @@ if (mycursor.fetchone()[0] == 0):
                  "clock_time VARCHAR(20), latitude DOUBLE, "
                  "longitude DOUBLE, temp_val DOUBLE, humidity_val DOUBLE, "
                  "cloudi_val DOUBLE, rain_val DOUBLE, "
-                 "wind_val DOUBLE, weather_symbol VARCHAR(30), time_added INT, date_added DATE)")
+                 "wind_val DOUBLE, weather_symbol VARCHAR(30), time_added INT)")
 
 def weather_retrieval(latitude, longitude):
     #Function which takes any given latitude and longitude, and writes the 24 hour forecast to database (forecast table) AS WELL as the current weather condition (weather history table).
@@ -56,7 +57,7 @@ def weather_retrieval(latitude, longitude):
     weather_obj = json.loads(json_weather)
     weather_dic = weather_obj['weatherdata']
 
-    weather_symbol, time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date, humidity_val = '', '', '', '', '', '', '', '', ''
+    weather_symbol, xml_time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date, humidity_val = '', '', '', '', '', '', '', '', ''
 
     #Loop through XML
     for i in range(1, 49):
@@ -66,9 +67,9 @@ def weather_retrieval(latitude, longitude):
                 weather_status = data_titles_overview[data]
                 for key in weather_status:
                     if len(key) == 1 and key != " ":
-                        time += key
-                        clock_time = time[19:27]
-                        date = time[8:18]
+                        xml_time += key
+                        clock_time = xml_time[19:27]
+                        date = xml_time[8:18]
                     if len(key) > 1:
                         weather_each = weather_status[key]
                         for key2 in weather_each:
@@ -89,28 +90,27 @@ def weather_retrieval(latitude, longitude):
                                     rain_val = data
                                 elif column == 'symbol' and '@id' in key2:
                                     weather_symbol = data
+
             if temp_val == '':
                 pass
             else:
                 info_weather = ()
-                time_added = current_time[0:2]
-                date_added = datetime.today().strftime('%Y-%m-%d')
-                #date_added = datetime.date()
-                info_weather = info_weather +((date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol, time_added, date_added),)
+                time_added = time.time()
+                info_weather = info_weather +((date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol, time_added),)
                 if clock_time == current_time:
                     #If weather data is the closest forecast
                     weather_db(info_weather, "history")
                 weather_db(info_weather, "forecast")
-                weather_symbol, time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date, humidity_val = '', '', '', '', '', '', '', '', ''
+                weather_symbol, xml_time, temp_val, cloudi_val, wind_val, rain_val, clock_time, date, humidity_val = '', '', '', '', '', '', '', '', ''
                 break
 
 
 def weather_db(x, table):
     try:
         if table == "history":
-            sql = "INSERT INTO weather_history (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol, time_added, date_added) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            sql = "INSERT INTO weather_history (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol, time_added) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         else:
-            sql = "INSERT INTO weather_forecast (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol, time_added, date_added) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            sql = "INSERT INTO weather_forecast (date, clock_time, latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol, time_added) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
         mycursor.executemany(sql, x)
         mydb.commit()
@@ -140,8 +140,7 @@ for i in range(0, len(bikes_obj) - 1):
         print(bikes_obj[i])
 
 try:
-    date = datetime.today().strftime('%Y-%m-%d')
-    mycursor.execute("DELETE FROM weather_forecast WHERE time_added < " + str(current_time[0:2]) + " AND date_added <='" + date + "'")
+    mycursor.execute("DELETE FROM weather_forecast WHERE time_added < " + str(epoch_start_time))
     mydb.commit()
 except:
     print("Error deleting previous forecast.")
