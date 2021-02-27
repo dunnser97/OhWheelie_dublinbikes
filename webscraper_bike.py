@@ -1,6 +1,5 @@
 import requests
 import json
-import time
 import mysql.connector
 import datetime
 
@@ -10,39 +9,38 @@ Stations = "https://api.jcdecaux.com/vls/v1/stations"
 
 
 def main():
-    while True:
-        try:
-            r = requests.get(Stations,
-                             params={"apiKey": APIKEY, "contract": NAME})
-            bikes_obj = json.loads(r.text)
-            info_bikes = ()
+    try:
+        r = requests.get(Stations,
+                        params={"apiKey": APIKEY, "contract": NAME})
+        bikes_obj = json.loads(r.text)
+        info_bikes = ()
 
-            for i in range(0, len(bikes_obj) - 1):
-                try:
-                    address = bikes_obj[i]["address"]
-                    abs = bikes_obj[i]["available_bike_stands"]
-                    ab = bikes_obj[i]["available_bikes"]
-                    banking = bikes_obj[i]["banking"]
-                    bs = bikes_obj[i]["bike_stands"]
-                    bonus = bikes_obj[i]["bonus"]
-                    cn = bikes_obj[i]["contract_name"]
-                    last_update = datetime.datetime.fromtimestamp(bikes_obj[i]["last_update"] / 1e3)
-                    name = bikes_obj[i]["name"]
-                    number = bikes_obj[i]["number"]
-                    latitude = bikes_obj[i]["position"]["lat"]
-                    longitude = bikes_obj[i]["position"]["lng"]
-                    status = bikes_obj[i]["status"]
-                    info_bikes = info_bikes + ((address, abs, ab, banking, bs, bonus, cn,
+        for i in range(0, len(bikes_obj) - 1):
+            try:
+                address = bikes_obj[i]["address"]
+                abs = bikes_obj[i]["available_bike_stands"]
+                ab = bikes_obj[i]["available_bikes"]
+                banking = bikes_obj[i]["banking"]
+                bs = bikes_obj[i]["bike_stands"]
+                bonus = bikes_obj[i]["bonus"]
+                cn = bikes_obj[i]["contract_name"]
+                last_update = datetime.datetime.fromtimestamp(bikes_obj[i]["last_update"] / 1e3)
+                name = bikes_obj[i]["name"]
+                number = bikes_obj[i]["number"]
+                latitude = bikes_obj[i]["position"]["lat"]
+                longitude = bikes_obj[i]["position"]["lng"]
+                status = bikes_obj[i]["status"]
+                info_bikes = info_bikes + ((address, abs, ab, banking, bs, bonus, cn,
                                                 last_update, name, number, latitude, longitude, status),)
-                except:
-                    print("Error with station", str(bikes_obj[i]["number"]))
-                    print(bikes_obj[i])
+            except:
+                print("Error with station", str(bikes_obj[i]["number"]))
+                print(bikes_obj[i])
 
-            stations_db(info_bikes)
-            time.sleep(8 * 60)
-        except Exception as e:
-            print(e)
-            time.sleep(8 * 60)
+        stations_db(info_bikes)
+        print("Successfully saved bikes from API.")
+    except Exception as e:
+        print(e)
+        print("Error with saving to database")
 
 
 def stations_db(x):
