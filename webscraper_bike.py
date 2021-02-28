@@ -2,6 +2,7 @@ import requests
 import json
 import mysql.connector
 import datetime
+import dbinfo
 
 APIKEY = "7188e828188de75359fb293a4f4fd405a53fdfe8"
 NAME = "Dublin"
@@ -14,7 +15,6 @@ def main():
                         params={"apiKey": APIKEY, "contract": NAME})
         bikes_obj = json.loads(r.text)
         info_bikes = ()
-        print("here")
         for i in range(0, len(bikes_obj) - 1):
             try:
                 address = bikes_obj[i]["address"]
@@ -63,10 +63,10 @@ def stations_db(x):
               "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
         mydb = mysql.connector.connect(
-            host="",
-            user="",
-            passwd="",
-            database="",
+            host=dbinfo.dbhost,
+            user=dbinfo.dbuser,
+            passwd=dbinfo.dbpasswd,
+            database=dbinfo.dbdatabase,
         )
         mycursor = mydb.cursor(dictionary=False)
         mycursor.execute(" SELECT count(*) FROM information_schema.tables WHERE table_name = 'dbbikes_info'")
