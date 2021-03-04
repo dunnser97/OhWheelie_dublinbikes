@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 import pandas as pd
 from jinja2 import Template
 from sqlalchemy import create_engine
@@ -34,3 +34,4 @@ def station(station_id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
