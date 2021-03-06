@@ -140,13 +140,13 @@ def send_weather(data, command):
         mycursor = mydb.cursor(dictionary=False)
         if command == "current":
             print(data)
-            sql = "INSERT INTO weather_new_hist (timestamp, current_time, long, lat, temp, uvi, feels_like, " \
-                    "pressure, humidity, wind_speed, wind_deg, clouds, visibility, sunrise, sunset,  " \
-                    "main, desc) VALUES (%s, %s, %s, %s, %s " \
+            sql = "INSERT INTO weather_new_hist (timestamp, time, longitude, latitude, temp_val, uvi, feels_like, " \
+                    "pressure, humidity, wind_speed, wind_deg, cloudy, visibility, sunrise, sunset,  " \
+                    "main_weather, descript) VALUES (%s, %s, %s, %s, %s, " \
                     "%s, %s, %s, %s, %s, %s, %s, s%, s%, s%, s%, s%)"
         else:
-            sql = "INSERT INTO weather_new_forecast (timestamp, long, lat, ft_temp, ft_feels_like, ft_uvi, ft_pressure, " \
-                    "ft_humidity, ft_wind_speed, ft_wind_deg, ft_clouds, ft_visibility, ft_main, ft_desc) " \
+            sql = "INSERT INTO weather_new_forecast (timestamp, longitude, latitude, temp_val, uvi, feels_like, " \
+                    "pressure, humidity, wind_speed, wind_deg, cloudy, visibility, main_weather, descript) " \
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, s%, s%)"
 
         mycursor.executemany(sql, data)
