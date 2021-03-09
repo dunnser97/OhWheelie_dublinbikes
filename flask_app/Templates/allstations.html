@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
+    <style>
+        .nav {
+            background-color: Black;
+            overflow: hidden;
+            margin: 0px;
+            border: 0px;
+            padding: 10px;
+        }
+        .nav a {
+            float: left;
+            display: block;
+            color: White;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 25px;
+        }
+
+        .station th, tr{
+            #background: #bdfff8;
+            padding: 25px;
+        }
+
+    </style>
+
+    <head>
+        <div class="nav">
+            <a href="localhost:5000/stations/3">Oh_Wheelie.inc</a>
+            <a href="#">Home</a>
+            <a href="#">Stations</a>
+            <a href="#">about</a>
+        </div>
+
+        <title>Dublin Bikes: All Stations</title>
+        <meta charset=utf-8>
+    </head>
+
+    <body>
+
+        <div class="search">
+            <form action="">
+                <input type="text" placeholder="Search by name or or station number" name="search">
+            </form>
+        </div>
+
+        <div id ="searchresults">
+            <h1>Loading stations... </h1>
+
+        </div>
+
+        <script>
+
+            fetch("/stations").then(response => {
+                return response.json();
+            }).then(data => {
+                console.log("data: ", data);
+
+
+                var results_output = "<table>";
+                results_output += "<tr><th>Station</th><th>Available Bikes</th><th>Available Stands</th></tr>";
+
+                data.forEach(station => {
+                    results_output += "<tr><th><a href='/" + station.id + "'>" + station.name + "</a></th>";
+                    results_output += "<th>" + station.available_bikes + "</th>";
+                    results_output += "<th>" + station.available_bike_stands + "</th></tr>";
+                })
+                results_output += "</table>";
+                
+                document.getElementById("searchresults").innerHTML = results_output;
+
+            })
+
+
+        </script>
+
+    </body>
+</html>
