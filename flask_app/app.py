@@ -3,7 +3,13 @@ import pandas as pd
 from jinja2 import Template
 from sqlalchemy import create_engine
 import dbinfo
+from flask_caching import Cache
+
+cache = Cache()
 app = Flask(__name__, template_folder='templates')
+app.config['CACHE_TYPE'] = 'simple'
+
+cache.init_app(app)
 
 @app.route("/")
 
@@ -17,6 +23,7 @@ def about():
 
 
 @app.route("/stations")
+@cache.cached(timeout=60)
 def stations():
     engine = create_engine(f"mysql+mysqlconnector://{dbinfo.user}:{dbinfo.passwd}@{dbinfo.host}:3306/{dbinfo.database}")
    #result = engine.execute("select * from weather_hourDB.dbbikes_current_info")
@@ -30,6 +37,10 @@ def station(station_id):
     row_query = "select * from dbbikes_current_info where Station_number = " + str(format(station_id))
     x = pd.read_sql_query(row_query, engine)
     return render_template("stations_individual.html", indiv_stat=x)
+
+@app.route("/allstations")
+def allstations():
+    return render_template("allstations.html")
 
 
 if __name__ == "__main__":
