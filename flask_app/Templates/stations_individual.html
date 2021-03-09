@@ -23,12 +23,22 @@
     <title>Title</title>
 </head>
 <body>
-<div class="nav">
+<!---<div class="nav">
     <a href="localhost:5000/stations/3">Oh_Wheelie.inc</a>
     <a href="#">Home</a>
     <a href="#">Stations</a>
     <a href="#">about</a>
-</div>
-
+</div>--->
+<p>Station number: {{ indiv_stat.Station_number[0] }}</p>
+<p>Address: {{ indiv_stat.address[0] }}</p>
+<p>Available Bikes: {{ indiv_stat.available_bikes[0] }}</p>
+<p>Available Bike Stands: {{ indiv_stat.available_bike_stands[0] }}</p>
+<p id="demo"></p>
+<p>Status: {{ indiv_stat.status[0] }}</p>
 </body>
+<script>
+var d = '{{indiv_stat.time[0]}}';
+d = 'Most recent update: {{ indiv_stat.date[0] }} ' + d.split(' ')[2]
+document.getElementById("demo").innerHTML = d
+</script>
 </html>
