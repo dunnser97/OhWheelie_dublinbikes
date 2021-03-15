@@ -1,9 +1,11 @@
 // Function for index page
+
+
 let map;
 function initMap(){
     fetch("/stations").then(response => {
      return response.json(); }).then(data => {
-    console.log("data:", data);
+    // console.log("data:", data);
 
 
 
@@ -13,9 +15,14 @@ function initMap(){
   });
 
     data.forEach(station => {
-           const infowindow = new google.maps.InfoWindow({
+            const marker = new google.maps.Marker({
+                position: {lat: parseFloat(station.latitude), lng: parseFloat(station.longitude)},
+             map: map,
+            });
+            marker.addListener("click", () => {
+                const infowindow = new google.maps.InfoWindow({
                     content: station.address + '<br>' + station.available_bikes + ' bikes available'
-                      + " " +  '<button onclick="station_details(\'' + station.id + '\'); change_url(\'' + station.id + '\') ">Station Details</button>'
+                      + " " +  '<button onclick="station_details(\'' + station.id + '\'); change_url(\'' + station.id + '\');drawChart(\'' + station.id + '\')">Station Details</button>'
                 })
             infowindow.open(map, marker);
            })
@@ -24,7 +31,7 @@ function initMap(){
     console.log(err);
     })
 }
-
+google.charts.load('current', {packages: ['corechart']});
 
 function station_details(picked){
         document.getElementById("over_map").innerHTML = "<p>Retrieving Data</p>";
@@ -56,7 +63,7 @@ function change_url(x){
     window.history.pushState('page2', 'Title', url);
     fetch("/index/"+ x).then(response => {
      return response.json(); }).then(data => {
-     console.log("data:", data);
+     //console.log("data:", data);
 
     var today = new Date();
     var h = today.getHours();
@@ -69,8 +76,6 @@ function change_url(x){
         m = ":00"}
     current_time = h.toString() + m + ":00"
     // console.log(current_time)
-
-
             console.log('here')
             var weather_output = "<table>";
             weather_output += "<tr><th>Current Weather</th><th>Time</th>"
@@ -90,4 +95,26 @@ function change_url(x){
         })
         window.history.replaceState('page2', 'Title', "/index")
 }
- 
+
+  function drawChart(x) {
+        url = "/index/" + x
+        window.history.pushState('page2', 'Title', url);
+        fetch("/index/"+ x).then(response => {
+        return response.json(); }).then(data => {
+
+        var array = [];
+        var Header= ['Time', 'Rain Index'];
+        array.push(Header);
+        data.forEach(hour => {
+        var temp=[];
+            temp.push(hour.clock_time, parseFloat(hour.rain_val));
+            array.push(temp);
+             })
+            console.log(array)
+           google.charts.load('current', {packages: ['corechart']});
+          var chart = google.visualization.arrayToDataTable(array)
+          var chart_div = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
+          chart_div.draw(chart)
+        })
+        window.history.replaceState('page2', 'Title', "/index")
+     }
