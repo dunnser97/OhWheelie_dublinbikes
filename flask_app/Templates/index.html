@@ -33,8 +33,30 @@
             right: 0;
             bottom: 0;[/COLOR]
 	        z-index: 2;}
+        .nav {
+            background-color: Black;
+            overflow: hidden;
+            margin: 0;
+            border: 0;
+            padding: 10px;
+ }
+        .nav a {
+            float: left;
+            display: block;
+            color: White;
+            text-align: center;
+            padding: 16px;
+            text-decoration: none;
+            font-size: 25px;
+ }
     </style>
 </head>
+<div class="nav">
+    <a>Oh_Wheelie.inc</a>
+    <a href="{{url_for('hello')}}">Home</a>
+    <a href="{{url_for('allstations')}}">Stations</a>
+    <a href="#">about</a>
+</div>
 <body>
   <div id="map"></div>
     <div id="over_map"></div>
