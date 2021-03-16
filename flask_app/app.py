@@ -4,7 +4,6 @@ from jinja2 import Template
 from sqlalchemy import create_engine
 import dbinfo
 from flask_caching import Cache
-app = Flask(__name__, template_folder='templates')
 
 cache = Cache()
 app = Flask(__name__, template_folder='templates')
@@ -17,7 +16,6 @@ cache.init_app(app)
 @app.route("/index")
 def hello():
     return render_template("index.html")
-
 
 @app.route("/index/<int:station_id>")
 def weather(station_id):
@@ -32,11 +30,9 @@ def weather(station_id):
     y = pd.read_sql_query(row_query_1, engine)
     return y.to_json(orient="records")
 
-
 @app.route("/about")
 def about():
     return app.send_static_file("about.html")
-
 
 @app.route("/stations")
 @cache.cached(timeout=60)
@@ -48,6 +44,7 @@ def stations():
     return df.to_json(orient="records")
 
 @app.route("/stations/<int:station_id>")
+@cache.cached(timeout=60)
 def station(station_id):
     engine = create_engine(f"mysql+mysqlconnector://{dbinfo.user}:{dbinfo.passwd}@{dbinfo.host}:3306/{dbinfo.database}", echo=True)
     row_query = "select * from dbbikes_current_info where Station_number = " + str(format(station_id))
