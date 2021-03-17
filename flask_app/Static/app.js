@@ -1,27 +1,39 @@
 // Function for index page
-
-
 let map;
 function initMap(){
     fetch("/stations").then(response => {
      return response.json(); }).then(data => {
-    // console.log("data:", data);
-
-
 
   map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: 53.28853, lng: -6.174522},
-    zoom: 13,
+    center: { lat: 53.3493, lng: -6.2611},
+    zoom: 12,
   });
 
-    data.forEach(station => {
+add_legend()
+add_nav()
+
+data.forEach(station => {
+        if (parseInt(station.available_bikes) < 5){
+        var myIcon = ('http://maps.google.com/mapfiles/ms/icons/red-dot.png')
+                }
+        else if (parseInt(station.available_bikes) < 10){
+        var myIcon = ('http://maps.google.com/mapfiles/ms/icons/orange-dot.png')
+            }
+         else if (parseInt(station.available_bikes) == 0){
+        var myIcon = ('http://maps.google.com/mapfiles/ms/icons/blue-dot.png')
+            }
+        else {
+        var myIcon = ('http://maps.google.com/mapfiles/ms/icons/green-dot.png')}
+
             const marker = new google.maps.Marker({
                 position: {lat: parseFloat(station.latitude), lng: parseFloat(station.longitude)},
-             map: map,
+                icon: myIcon,
+                map: map,
             });
             marker.addListener("click", () => {
                 const infowindow = new google.maps.InfoWindow({
-                    content: station.address + '<br>' + station.available_bikes + ' bikes available'
+                    content: station.address + '<br>' + station.available_bikes + ' bikes available' + '<br>' +
+                    station.available_bike_stands + ' available bike stands' + '<br>'
                       + " " +  '<button onclick="station_details(\'' + station.id + '\'); change_url(\'' + station.id + '\');drawChart(\'' + station.id + '\')">Station Details</button>'
                 })
             infowindow.open(map, marker);
@@ -31,7 +43,7 @@ function initMap(){
     console.log(err);
     })
 }
-google.charts.load('current', {packages: ['corechart']});
+
 
 function station_details(picked){
         document.getElementById("over_map").innerHTML = "<p>Retrieving Data</p>";
@@ -53,12 +65,51 @@ function station_details(picked){
             })
             station_output += "</table>";
             document.getElementById("over_map").innerHTML = station_output;
+            bike_data = document.getElementById('over_map');
+            map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].clear();
+            map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(bike_data)
         })
+      }
+function add_nav(){
+    const nav = document.getElementById("nav_bar");
+    map.controls[google.maps.ControlPosition.LEFT_TOP].push(nav);
+}
+function add_legend(){
+      const legend = document.getElementById("legend");
+
+        const icons = {
+      green: {
+        name: "More than 10 Free bikes",
+        icon: ('http://maps.google.com/mapfiles/ms/icons/green-dot.png'),
+      },
+      orange: {
+        name: "Less than 10 Free Bikes",
+        icon: ('http://maps.google.com/mapfiles/ms/icons/orange-dot.png'),
+      },
+      red: {
+        name: "Less than 5 Free Bikes",
+        icon: ('http://maps.google.com/mapfiles/ms/icons/red-dot.png'),
+      },
+      blue: {
+        name: "No Free bikes",
+        icon: ('http://maps.google.com/mapfiles/ms/icons/blue-dot.png'),
+      },
+    };
+        for (const key in icons) {
+        console.log(key)
+          const type = icons[key];
+          const name = type.name;
+          const icon = type.icon;
+          const div = document.createElement("div");
+          div.innerHTML = '<img src="' + icon + '"> ' + name;
+          legend.appendChild(div);
+        }
+        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(legend);
 }
 
 
 function change_url(x){
-        document.getElementById('weather_map').innerHTML = 'Getting weather data...';
+       document.getElementById('weather_map').innerHTML = 'Getting weather data...';
        url = "/index/" + x
     window.history.pushState('page2', 'Title', url);
     fetch("/index/"+ x).then(response => {
@@ -92,11 +143,16 @@ function change_url(x){
             })
             weather_output += "</table>";
             document.getElementById('weather_map').innerHTML = weather_output;
+            weather_mp = document.getElementById('weather_map')
+            map.controls[google.maps.ControlPosition.LEFT_BOTTOM].clear();
+            map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(weather_mp)
         })
         window.history.replaceState('page2', 'Title', "/index")
 }
 
-  function drawChart(x) {
+
+ function drawChart(x) {
+        google.charts.load('current', {packages: ['corechart']});
         url = "/index/" + x
         window.history.pushState('page2', 'Title', url);
         fetch("/index/"+ x).then(response => {
@@ -111,7 +167,7 @@ function change_url(x){
             array.push(temp);
              })
             console.log(array)
-           google.charts.load('current', {packages: ['corechart']});
+
           var chart = google.visualization.arrayToDataTable(array)
           var chart_div = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
           chart_div.draw(chart)
