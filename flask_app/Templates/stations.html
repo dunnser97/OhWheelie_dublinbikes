@@ -1,10 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+    <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
+    <style>
+        .nav {
+            background-color: Black;
+            overflow: hidden;
+            margin: 0px;
+            border: 0px;
+            padding: 10px;
+        }
+        .nav a {
+            float: left;
+            display: block;
+            color: White;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 25px;
+        }
 
-</body>
+        .station th, tr{
+            #background: #bdfff8;
+            padding: 25px;
+        }
+
+        #userInput {
+            background-position: 10px 12px;
+            background-repeat: no-repeat;
+            width: 100%;
+            font-size: 16px;
+            padding: 12px 20px 12px 40px;
+            border: 1px solid #ddd;
+            margin-bottom: 12px;
+        }
+
+    </style>
+
+    <head>
+        <div class="nav">
+            <a href="localhost:5000/stations/3">Oh_Wheelie.inc</a>
+            <a href="#">Home</a>
+            <a href="#">Stations</a>
+            <a href="#">about</a>
+        </div>
+
+        <title>Dublin Bikes: All Stations</title>
+        <meta charset=utf-8>
+    </head>
+
+    <body>
+
+        <div class="search">
+            <input type="text" id="userInput" onkeyup="filterSearch()" placeholder="Search for stations..." title="Type in a name">
+        </div>
+
+        <div id ="searchresults">
+            <h1>Loading...</h1>
+
+        </div>
+
+        <script>
+
+            /*This function was aided by */
+            function filterSearch() {
+                var input, filter, table, th, a, i, txtValue;
+                input = document.getElementById("userInput");
+                table = document.getElementById("resultsTable");
+                filter = input.value.toUpperCase();
+                th = table.getElementsByClassName("stname");
+                for (i = 0; i < th.length; i++) {
+                    a = th[i].getElementsByTagName("a")[0];
+                    txtValue = a.textContent || a.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        th[i].style.display = "";
+                    } else {
+                        th[i].style.display = "none";
+                    }
+                }
+
+            }
+
+            fetch("/stations").then(response => {
+                return response.json();
+            }).then(data => {
+                console.log("data: ", data);
+
+                results_output = "<table id='resultsTable'>"
+                results_output += "<tr> <th> Station Name </th> <th> Available Bikes </th> <th> Available Stands </th> </tr>"
+
+                data.forEach(station => {
+                    results_output += "<tr class='stname'>";
+                    results_output += "<th class='stname'><a href='/stations/" + station.Station_number + "'>" + station.name + "</a></th>";
+                    results_output += "<th>" + station.available_bikes + "</th>";
+                    results_output += "<th>" + station.available_bike_stands + "</th>";
+                    results_output += "</tr>";
+                })
+                results_output += "</table>";
+
+                document.getElementById("searchresults").innerHTML = results_output;
+
+            })
+
+
+        </script>
+
+    </body>
 </html>
