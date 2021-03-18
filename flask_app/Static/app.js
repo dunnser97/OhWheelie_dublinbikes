@@ -13,15 +13,16 @@ add_legend()
 add_nav()
 
 data.forEach(station => {
-        if (parseInt(station.available_bikes) < 5){
+        if (parseInt(station.available_bikes) < 1){
+        var myIcon = ('http://maps.google.com/mapfiles/ms/icons/blue-dot.png')
+            }
+        else if (parseInt(station.available_bikes) < 5){
         var myIcon = ('http://maps.google.com/mapfiles/ms/icons/red-dot.png')
                 }
         else if (parseInt(station.available_bikes) < 10){
         var myIcon = ('http://maps.google.com/mapfiles/ms/icons/orange-dot.png')
             }
-         else if (parseInt(station.available_bikes) == 0){
-        var myIcon = ('http://maps.google.com/mapfiles/ms/icons/blue-dot.png')
-            }
+
         else {
         var myIcon = ('http://maps.google.com/mapfiles/ms/icons/green-dot.png')}
 
@@ -66,13 +67,14 @@ function station_details(picked){
             station_output += "</table>";
             document.getElementById("over_map").innerHTML = station_output;
             bike_data = document.getElementById('over_map');
-            map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].clear();
-            map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(bike_data)
+            map.controls[google.maps.ControlPosition.LEFT_CENTER].clear();
+            map.controls[google.maps.ControlPosition.LEFT_CENTER].push(bike_data)
+            document.getElementById("over_map").style.display = "block";
         })
       }
 function add_nav(){
-    const nav = document.getElementById("nav_bar");
-    map.controls[google.maps.ControlPosition.LEFT_TOP].push(nav);
+    nav = document.getElementById('nav_bar');
+    map.controls[google.maps.ControlPosition.TOP_CENTER].push(nav)
 }
 function add_legend(){
       const legend = document.getElementById("legend");
@@ -114,7 +116,6 @@ function change_url(x){
     window.history.pushState('page2', 'Title', url);
     fetch("/index/"+ x).then(response => {
      return response.json(); }).then(data => {
-     //console.log("data:", data);
 
     var today = new Date();
     var h = today.getHours();
@@ -126,7 +127,7 @@ function change_url(x){
      else {
         m = ":00"}
     current_time = h.toString() + m + ":00"
-    // console.log(current_time)
+
             console.log('here')
             var weather_output = "<table>";
             weather_output += "<tr><th>Current Weather</th><th>Time</th>"
@@ -146,6 +147,7 @@ function change_url(x){
             weather_mp = document.getElementById('weather_map')
             map.controls[google.maps.ControlPosition.LEFT_BOTTOM].clear();
             map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(weather_mp)
+            document.getElementById("weather_map").style.display = "block";
         })
         window.history.replaceState('page2', 'Title', "/index")
 }
@@ -166,7 +168,6 @@ function change_url(x){
             temp.push(hour.clock_time, parseFloat(hour.rain_val));
             array.push(temp);
              })
-            console.log(array)
 
           var chart = google.visualization.arrayToDataTable(array)
           var chart_div = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
