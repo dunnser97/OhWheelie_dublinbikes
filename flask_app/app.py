@@ -36,10 +36,14 @@ def about():
 
 @app.route("/stations")
 @cache.cached(timeout=60)
-def allstations():
-    return render_template("allstations.html")
+def stations():
+    engine = create_engine(f"mysql+mysqlconnector://{dbinfo.user}:{dbinfo.passwd}@{dbinfo.host}:3306/{dbinfo.database}")
+   #result = engine.execute("select * from weather_hourDB.dbbikes_current_info")
+    df = pd.read_sql_table("dbbikes_current_info", engine)
+    print(df.head(3).to_json(orient="records"))
+    return df.to_json(orient="records")
 
-@app.route("/stations/<int:station_id>")
+@app.route("/allstations/<int:station_id>")
 @cache.cached(timeout=60)
 def station(station_id):
     engine = create_engine(f"mysql+mysqlconnector://{dbinfo.user}:{dbinfo.passwd}@{dbinfo.host}:3306/{dbinfo.database}", echo=True)
@@ -51,6 +55,10 @@ def station(station_id):
     y = pd.read_sql_query(row_query_1, engine)
     results = y.to_json(orient="split")
     return render_template("stations_individual.html", indiv_stat=x, weather_data=y, results=results)
+
+@app.route("/allstations")
+def allstations():
+    return render_template("stations.html")
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

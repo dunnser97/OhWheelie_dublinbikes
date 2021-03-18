@@ -90,7 +90,7 @@
 
                 data.forEach(station => {
                     results_output += "<tr class='stname'>";
-                    results_output += "<th class='stname'><a href='/stations/" + station.Station_number + "'>" + station.name + "</a></th>";
+                    results_output += "<th class='stname'><a href='/allstations/" + station.Station_number + "'>" + station.name + "</a></th>";
                     results_output += "<th>" + station.available_bikes + "</th>";
                     results_output += "<th>" + station.available_bike_stands + "</th>";
                     results_output += "</tr>";
