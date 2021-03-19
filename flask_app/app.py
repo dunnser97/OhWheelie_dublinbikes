@@ -31,10 +31,10 @@ def weather(station_id):
 
 @app.route("/about")
 def about():
-    return app.send_static_file("about.html")
+    return render_template("about.html")
 
 @app.route("/stations")
-@cache.cached(timeout=60)
+@cache.cached(timeout=600)
 def stations():
     engine = create_engine(f"mysql+mysqlconnector://{dbinfo.user}:{dbinfo.passwd}@{dbinfo.host}:3306/{dbinfo.database}", echo=True)
     row_query = "select * from dbbikes_current_info"
@@ -43,7 +43,7 @@ def stations():
     return df.to_json(orient="records")
 
 @app.route("/allstations/<int:station_id>")
-@cache.cached(timeout=60)
+@cache.cached(timeout=600)
 def station(station_id):
     engine = create_engine(f"mysql+mysqlconnector://{dbinfo.user}:{dbinfo.passwd}@{dbinfo.host}:3306/{dbinfo.database}", echo=True)
     row_query = "select * from dbbikes_current_info where Station_number = " + str(format(station_id))

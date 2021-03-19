@@ -123,9 +123,7 @@ th {
 
 .nav li a:hover:not(.active) {
     color: #494949 !important;
-    border-radius: 50px;
-    border-color: #494949 !important;
-    transition: all 0.3s ease 0s;}
+    transition: all 0.3s ease 0s;
 }
 
 .station th, tr{
@@ -154,7 +152,7 @@ th {
     background-size: 300px;
 }
 
-#searchresults h1 {
+h1 {
     color: black;
     text-align: center;
 }
@@ -179,4 +177,12 @@ th {
 #searchresults th {
     padding: 20px;
     background-color: #5FAFB0;
+}
+
+#searchresults th {
+    color: white;
+}
+
+p {
+    text-align: center;
 }
