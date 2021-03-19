@@ -11,7 +11,6 @@ function initMap(){
   });
 
 add_legend()
-add_nav()
 
 data.forEach(station => {
         if (parseInt(station.available_bikes) < 1){
@@ -73,11 +72,7 @@ function station_details(picked){
             document.getElementById("over_map").style.display = "block";
         })
       }
-function add_nav(){
-    nav = document.getElementById('nav_bar');
-    map.controls[google.maps.ControlPosition.TOP_CENTER].push(nav);
-    document.getElementById("nav_bar").style.display = "block";
-}
+
 function add_legend(){
       const legend = document.getElementById("legend");
 
