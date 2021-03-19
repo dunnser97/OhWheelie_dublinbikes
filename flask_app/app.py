@@ -1,6 +1,5 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template
 import pandas as pd
-from jinja2 import Template
 from sqlalchemy import create_engine
 import dbinfo
 from flask_caching import Cache
@@ -37,9 +36,9 @@ def about():
 @app.route("/stations")
 @cache.cached(timeout=60)
 def stations():
-    engine = create_engine(f"mysql+mysqlconnector://{dbinfo.user}:{dbinfo.passwd}@{dbinfo.host}:3306/{dbinfo.database}")
-   #result = engine.execute("select * from weather_hourDB.dbbikes_current_info")
-    df = pd.read_sql_table("dbbikes_current_info", engine)
+    engine = create_engine(f"mysql+mysqlconnector://{dbinfo.user}:{dbinfo.passwd}@{dbinfo.host}:3306/{dbinfo.database}", echo=True)
+    row_query = "select * from dbbikes_current_info"
+    df = pd.read_sql_query(row_query, con=engine)
     print(df.head(3).to_json(orient="records"))
     return df.to_json(orient="records")
 
