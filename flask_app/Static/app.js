@@ -4,6 +4,7 @@ function initMap(){
     fetch("/stations").then(response => {
      return response.json(); }).then(data => {
 
+    document.getElementById("loading").style.display = "none";
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 53.3493, lng: -6.2611},
     zoom: 12,
@@ -52,7 +53,7 @@ function station_details(picked){
             return response.json(); }).then(data2 => {
             console.log('here')
             var station_output = "<table>";
-            station_output += "<tr><th>Station</th><th>Available Bikes</th><th>Available Stands</th><th>Current Time</th></tr>";
+            station_output += "<tr><th>Station</th><th>Available Bikes</th><th>Available Stands</th><th>Last Update</th></tr>";
 
             data2.forEach(station => {
                 if (station.id == picked){
@@ -74,7 +75,8 @@ function station_details(picked){
       }
 function add_nav(){
     nav = document.getElementById('nav_bar');
-    map.controls[google.maps.ControlPosition.TOP_CENTER].push(nav)
+    map.controls[google.maps.ControlPosition.TOP_CENTER].push(nav);
+    document.getElementById("nav_bar").style.display = "block";
 }
 function add_legend(){
       const legend = document.getElementById("legend");
@@ -107,11 +109,17 @@ function add_legend(){
           legend.appendChild(div);
         }
         map.controls[google.maps.ControlPosition.RIGHT_TOP].push(legend);
+        document.getElementById("legend").style.display = "block";
 }
 
 
 function change_url(x){
        document.getElementById('weather_map').innerHTML = 'Getting weather data...';
+       weather_mp = document.getElementById('weather_map')
+       map.controls[google.maps.ControlPosition.LEFT_BOTTOM].clear();
+       map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(weather_mp)
+       document.getElementById("weather_map").style.display = "block";
+
        url = "/index/" + x
     window.history.pushState('page2', 'Title', url);
     fetch("/index/"+ x).then(response => {
@@ -130,7 +138,7 @@ function change_url(x){
 
             console.log('here')
             var weather_output = "<table>";
-            weather_output += "<tr><th>Current Weather</th><th>Time</th>"
+            weather_output += "<tr><th>Current Weather</th><th>Weather for:</th>"
             + "<th>Rain Index</th><th>Temperature</th><th>Cloud % Coverage</th></tr>";
 
             data.forEach(hour => {
@@ -144,12 +152,15 @@ function change_url(x){
             })
             weather_output += "</table>";
             document.getElementById('weather_map').innerHTML = weather_output;
-            weather_mp = document.getElementById('weather_map')
-            map.controls[google.maps.ControlPosition.LEFT_BOTTOM].clear();
-            map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(weather_mp)
-            document.getElementById("weather_map").style.display = "block";
+
         })
-        window.history.replaceState('page2', 'Title', "/index")
+        window.history.replaceState('page2', 'Title', "/index");
+
+       document.getElementById('loading_buffer').innerHTML = 'Getting rain forecast...';
+       buffer = document.getElementById('loading_buffer')
+       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
+       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(buffer)
+       document.getElementById("loading_buffer").style.display = "block";
 }
 
 
@@ -169,9 +180,16 @@ function change_url(x){
             array.push(temp);
              })
 
+           var options = {
+          title: 'Rain Index for Station ' + x,
+          vAxis: {title: 'mm',  titleTextStyle: {color: '#333'}},
+        };
           var chart = google.visualization.arrayToDataTable(array)
+          document.getElementById('loading_buffer').innerHTML = 'Scroll down for rain index!';
           var chart_div = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
-          chart_div.draw(chart)
+          chart_div.draw(chart, options)
         })
         window.history.replaceState('page2', 'Title', "/index")
      }
+
+

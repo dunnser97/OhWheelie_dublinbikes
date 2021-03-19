@@ -1,0 +1,6 @@
+host="bikesdb.c9qozhat0dxv.us-east-1.rds.amazonaws.com"
+passwd="mybikes99"
+user="admin"
+database="weather_hourDB"
+charset="utf8mb4"
+APIKEY="07044ac7667c62fadb385471abe9c7d760ac9bd9"
