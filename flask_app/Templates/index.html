@@ -10,38 +10,23 @@
     <script  src="{{ url_for('static', filename='app.js') }}" type="text/javascript"></script>
 
  <style>
-    #over_map{
-            background-position: 0 0;
-	        height: 60px;
-	        width: 30%;
-         [COLOR="Red"]position: absolute;
-            left: 0;
-            bottom: 0;[/COLOR]
-	        z-index: 2;}
-	     #weather_map {
-	     background-position: 0 0;
-	        height: 50px;
-	        width: 30%;
-         [COLOR="Red"]position: absolute;
-            right: 0;
-            bottom: 0;[/COLOR]
-	        z-index: 2;}
+
     </style>
 </head>
-<div id='nav_bar' class="nav">
+<div style="display: none;" id='nav_bar' class="nav">
     <a>Oh_Wheelie.inc</a>
     <a href="{{url_for('hello')}}">Home</a>
     <a href="{{url_for('allstations')}}">Stations</a>
-    <a href="#">about</a>
+    <a href="#">About</a>
 </div>
 <body>
+<div id="loading"><h2>Loading Map...</h2></div>
   <div id="map"></div>
-    <div id="over_map"></div>
-    <div id="weather_map"></div>
+    <div style="display: none;" id="over_map"></div>
+    <div style="display: none;" id="weather_map"></div>
+    <div style="'display: none" id="loading_buffer"></div>
     <div id="columnchart_values"></div>
-    <div id="legend"><h3>Legend</h3></div>
-
-
+    <div style="display: none;" id="legend"><h3>Legend</h3></div>
 
 
 </body>
