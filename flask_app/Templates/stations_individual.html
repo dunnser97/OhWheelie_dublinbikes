@@ -23,8 +23,9 @@
  }
     #basic_info {
         overflow: hidden;
-        margin: 50px;
-        width: 880px;
+        margin-left: 20%;
+        margin-top: 20px;
+        width: 1000px;
         height: 170px;
     }
     #divider    {
@@ -38,14 +39,17 @@
         width: 100px;
         height: 60px;
         overflow: auto;
-        background-color: blueviolet;
         position: static;
         margin: 0;
     }
     #weather_sym    {
-        bottom: 200px;
-        left: 1000px;
+        width: 100px;
+        height: auto;
     }
+    img {
+    max-width: 100%;
+    max-height: 50px;
+}
 </style>
 <head>
     <title>Stations</title>
@@ -68,7 +72,7 @@
     <div class="temp">Most recent update:</div>
     <div class="temp">Status:</div>
     <div class="temp">Weather: </div>
-    <!--<div id="temp"><div id="weather_sym"></div></div>--->
+    <div class="temp">Icon: </div>
 
     <div id="divider">
 
@@ -79,9 +83,9 @@
         <div class="temp"><a id="demo"></a></div>
         <div class="temp">{{ indiv_stat.status[0] }}</div>
         <div class="temp">{{ weather_data.weather_symbol[0] }} <br> {{weather_data.temp_val[0]}}<span>&#176;</span>C <br> {{weather_data.rain_val[0]}}mm</div>
+        <div class="temp"><div id="weather_sym"></div></div>
     </div>
 </div>
-<div id="weather_sym"></div>
  </body>
  <script>
 var d = '{{indiv_stat.time[0]}}';
@@ -94,11 +98,14 @@ var weather_symbol = document.getElementById("weather_sym")
 if ( sym === 'Cloud' ) {
     weather_symbol.innerHTML = "<img src='{{url_for('static', filename='Cloudy.png')}}' class='weather_sym' alt='Cloudy' style='object-fit:contain; width:200px;'>";
 }
-else if (sym === "PartlyCloud") {
+else if (sym === "PartlyCloud" || sym === "LightCloud") {
     weather_symbol.innerHTML = "<img src='{{url_for('static', filename='Partlycloud.jpg')}}' class='weather_sym' alt='Partly Cloudy' >";
 }
 else if (sym === "sunny") {
     weather_symbol.innerHTML = "<img src='{{url_for('static', filename='sunny.png')}}' class='weather_sym' alt='Sunny'> ";
+}
+else if (sym === "LightRainSun" || sym === "RainSun") {
+    weather_symbol.innerHTML = "<img src='{{url_for('static', filename='light_rain_sunny.png')}}' class='weather_sym' alt='light_rain_sunny'> ";
 }
  </script>
  </html>
