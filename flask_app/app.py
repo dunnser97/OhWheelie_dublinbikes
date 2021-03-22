@@ -33,7 +33,7 @@ def weather(station_id):
 
 @app.route("/about")
 def about():
-    return render_template("about.html")
+    return app.send_static_file("about.html")
 
 @app.route("/stations")
 @cache.cached(timeout=600)
