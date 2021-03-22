@@ -50,18 +50,20 @@ function station_details(picked){
         document.getElementById("over_map").innerHTML = "<p>Retrieving Data</p>";
         fetch("/stations").then(response => {
             return response.json(); }).then(data2 => {
-            console.log('here')
+
             var station_output = "<table>";
             station_output += "<tr><th>Station</th><th>Available Bikes</th><th>Available Stands</th><th>Last Update</th></tr>";
 
             data2.forEach(station => {
                 if (station.id == picked){
-                console.log(station.address)
+
+                time = station.time;
+                var clock_time = time.substring(6, 15);
 
                 station_output += "<tr><td>" + station.address + "</td>";
                 station_output += "<td>" + station.available_bikes+ "</td>"
                 station_output += "<td>" + station.available_bike_stands + "</td>";
-                station_output += "<td>" + station.time + "</td></tr>";
+                station_output += "<td>" + clock_time + "</td></tr>";
                 }
             })
             station_output += "</table>";
@@ -177,10 +179,11 @@ function change_url(x){
 
            var options = {
           title: 'Rain Index for Station ' + x,
-          vAxis: {title: 'mm',  titleTextStyle: {color: '#333'}},
+          vAxis: {title: 'mm',  titleTextStyle: {color: '#333'},
+          ticks: [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25]}
         };
           var chart = google.visualization.arrayToDataTable(array)
-          document.getElementById('loading_buffer').innerHTML = 'Scroll down for rain index!';
+          document.getElementById('loading_buffer').innerHTML = 'Scroll down for rain forecast!';
           var chart_div = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
           chart_div.draw(chart, options)
         })
