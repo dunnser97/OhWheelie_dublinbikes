@@ -55,7 +55,7 @@ def station(station_id):
     long = x["longitude"]
     row_query_1 = "select * from weather_forecast where latitude = " + str(format(lat[0])) + "and longitude = " + str(format(long[0])) + "group by clock_time"
     y = pd.read_sql_query(row_query_1, engine)
-    mean_day = "select AVG(available_bike_stands), weekday(date) from dbbikes_info where Station_number = " + str(format(station_id)) + " and time Between '06:00:00' AND '20:00:00' group by weekday(date)"
+    mean_day = "select AVG(available_bike_stands), weekday(date) from dbbikes_info where Station_number = " + str(format(station_id)) + " and time Between '06:00:00' AND '20:00:00' group by weekday(date) order by weekday(date) asc"
     mean_day = pd.read_sql_query(mean_day, sd_engine)
     mean_time ="select AVG(available_bike_stands), hour(time) from dbbikes_info where Station_number = " + str(format(station_id)) + " group by hour(time) order by hour(time) asc"
     mean_time = pd.read_sql_query(mean_time, sd_engine)
