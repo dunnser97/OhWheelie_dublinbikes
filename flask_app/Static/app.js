@@ -4,7 +4,8 @@ function initMap(){
     fetch("/stations").then(response => {
      return response.json(); }).then(data => {
 
-    document.getElementById("loading").style.display = "none";
+   document.getElementById("loading_buffer").style.display = "none";
+  document.getElementById("loading").style.display = "none";
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 53.3493, lng: -6.2611},
     zoom: 12,
@@ -38,6 +39,7 @@ data.forEach(station => {
                       + " " +  '<button onclick="station_details(\'' + station.id + '\'); change_url(\'' + station.id + '\');drawChart(\'' + station.id + '\')">Station Details</button>'
                 })
             infowindow.open(map, marker);
+
            })
         })
    }).catch(err => {
@@ -187,7 +189,6 @@ function change_url(x){
           var chart_div = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
           chart_div.draw(chart, options)
         })
+        document.getElementById("columnchart_values").style.display = "block";
         window.history.replaceState('page2', 'Title', "/index")
      }
-
-
