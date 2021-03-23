@@ -5,8 +5,8 @@ function initMap(){
      return response.json(); }).then(data => {
 
    document.getElementById("loading_buffer").style.display = "none";
-  document.getElementById("loading").style.display = "none";
-  map = new google.maps.Map(document.getElementById("map"), {
+   document.getElementById("loading").style.display = "none";
+   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 53.3493, lng: -6.2611},
     zoom: 12,
   });
@@ -54,7 +54,8 @@ function station_details(picked){
             return response.json(); }).then(data2 => {
 
             var station_output = "<table>";
-            station_output += "<tr><th>Station</th><th>Available Bikes</th><th>Available Stands</th><th>Last Update</th></tr>";
+            station_output += "<tr><th>Station</th><th>Available Bikes</th><th>Available Stands</th>"
+            + "<th>Last Update</th><th>Station Analysis</th></tr>";
 
             data2.forEach(station => {
                 if (station.id == picked){
@@ -64,8 +65,9 @@ function station_details(picked){
 
                 station_output += "<tr><td>" + station.address + "</td>";
                 station_output += "<td>" + station.available_bikes+ "</td>"
-                station_output += "<td>" + station.available_bike_stands + "</td>";
-                station_output += "<td>" + clock_time + "</td></tr>";
+                station_output += "<td>" + station.available_bike_stands + "</td>"
+                station_output += "<td>" + clock_time + "</td>"
+                station_output += "<td><a href='/allstations/" + station.id + "'>Station Details" + "</a></td></tr>";
                 }
             })
             station_output += "</table>";
@@ -99,7 +101,6 @@ function add_legend(){
       },
     };
         for (const key in icons) {
-        console.log(key)
           const type = icons[key];
           const name = type.name;
           const icon = type.icon;
