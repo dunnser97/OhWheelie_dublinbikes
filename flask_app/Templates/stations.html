@@ -1,10 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+    <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
+    <script  src="{{ url_for('static', filename='stations.js') }}" type="text/javascript"></script>
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
 
-</body>
+    <head>
+        <div class="nav">
+            <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/allstations">Stations</a></li>
+            <li><a href="/about">About</a></li>
+            </ul>
+        </div>
+
+        <title>Dublin Bikes: All Stations</title>
+        <meta charset=utf-8>
+    </head>
+
+    <body id="stationspage">
+
+        <div class="search">
+            <input type="text" id="userInput" onkeyup="filterSearch()" placeholder="Search for stations..." title="Type in a name">
+        </div>
+
+        <div id ="searchresults">
+            <h1>Loading...</h1>
+
+        </div>
+
+    </body>
 </html>

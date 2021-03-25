@@ -4,24 +4,26 @@ function initMap(){
     fetch("/stations").then(response => {
      return response.json(); }).then(data => {
 
-  map = new google.maps.Map(document.getElementById("map"), {
+   document.getElementById("loading_buffer").style.display = "none";
+   document.getElementById("loading").style.display = "none";
+   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 53.3493, lng: -6.2611},
     zoom: 12,
   });
 
 add_legend()
-add_nav()
 
 data.forEach(station => {
-        if (parseInt(station.available_bikes) < 5){
+        if (parseInt(station.available_bikes) < 1){
+        var myIcon = ('http://maps.google.com/mapfiles/ms/icons/blue-dot.png')
+            }
+        else if (parseInt(station.available_bikes) < 5){
         var myIcon = ('http://maps.google.com/mapfiles/ms/icons/red-dot.png')
                 }
         else if (parseInt(station.available_bikes) < 10){
         var myIcon = ('http://maps.google.com/mapfiles/ms/icons/orange-dot.png')
             }
-         else if (parseInt(station.available_bikes) == 0){
-        var myIcon = ('http://maps.google.com/mapfiles/ms/icons/blue-dot.png')
-            }
+
         else {
         var myIcon = ('http://maps.google.com/mapfiles/ms/icons/green-dot.png')}
 
@@ -37,6 +39,7 @@ data.forEach(station => {
                       + " " +  '<button onclick="station_details(\'' + station.id + '\'); change_url(\'' + station.id + '\');drawChart(\'' + station.id + '\')">Station Details</button>'
                 })
             infowindow.open(map, marker);
+
            })
         })
    }).catch(err => {
@@ -49,31 +52,33 @@ function station_details(picked){
         document.getElementById("over_map").innerHTML = "<p>Retrieving Data</p>";
         fetch("/stations").then(response => {
             return response.json(); }).then(data2 => {
-            console.log('here')
+
             var station_output = "<table>";
-            station_output += "<tr><th>Station</th><th>Available Bikes</th><th>Available Stands</th><th>Current Time</th></tr>";
+            station_output += "<tr><th>Station</th><th>Available Bikes</th><th>Available Stands</th>"
+            + "<th>Last Update</th><th>Station Analysis</th></tr>";
 
             data2.forEach(station => {
                 if (station.id == picked){
-                console.log(station.address)
+
+                time = station.time;
+                var clock_time = time.substring(6, 15);
 
                 station_output += "<tr><td>" + station.address + "</td>";
                 station_output += "<td>" + station.available_bikes+ "</td>"
-                station_output += "<td>" + station.available_bike_stands + "</td>";
-                station_output += "<td>" + station.time + "</td></tr>";
+                station_output += "<td>" + station.available_bike_stands + "</td>"
+                station_output += "<td>" + clock_time + "</td>"
+                station_output += "<td><a href='/allstations/" + station.id + "'>Station Details" + "</a></td></tr>";
                 }
             })
             station_output += "</table>";
             document.getElementById("over_map").innerHTML = station_output;
             bike_data = document.getElementById('over_map');
-            map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].clear();
-            map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(bike_data)
+            map.controls[google.maps.ControlPosition.LEFT_CENTER].clear();
+            map.controls[google.maps.ControlPosition.LEFT_CENTER].push(bike_data)
+            document.getElementById("over_map").style.display = "block";
         })
       }
-function add_nav(){
-    const nav = document.getElementById("nav_bar");
-    map.controls[google.maps.ControlPosition.LEFT_TOP].push(nav);
-}
+
 function add_legend(){
       const legend = document.getElementById("legend");
 
@@ -96,7 +101,6 @@ function add_legend(){
       },
     };
         for (const key in icons) {
-        console.log(key)
           const type = icons[key];
           const name = type.name;
           const icon = type.icon;
@@ -105,16 +109,21 @@ function add_legend(){
           legend.appendChild(div);
         }
         map.controls[google.maps.ControlPosition.RIGHT_TOP].push(legend);
+        document.getElementById("legend").style.display = "block";
 }
 
 
 function change_url(x){
        document.getElementById('weather_map').innerHTML = 'Getting weather data...';
+       weather_mp = document.getElementById('weather_map')
+       map.controls[google.maps.ControlPosition.LEFT_BOTTOM].clear();
+       map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(weather_mp)
+       document.getElementById("weather_map").style.display = "block";
+
        url = "/index/" + x
     window.history.pushState('page2', 'Title', url);
     fetch("/index/"+ x).then(response => {
      return response.json(); }).then(data => {
-     //console.log("data:", data);
 
     var today = new Date();
     var h = today.getHours();
@@ -126,10 +135,10 @@ function change_url(x){
      else {
         m = ":00"}
     current_time = h.toString() + m + ":00"
-    // console.log(current_time)
+
             console.log('here')
             var weather_output = "<table>";
-            weather_output += "<tr><th>Current Weather</th><th>Time</th>"
+            weather_output += "<tr><th>Current Weather</th><th>Weather for:</th>"
             + "<th>Rain Index</th><th>Temperature</th><th>Cloud % Coverage</th></tr>";
 
             data.forEach(hour => {
@@ -143,11 +152,15 @@ function change_url(x){
             })
             weather_output += "</table>";
             document.getElementById('weather_map').innerHTML = weather_output;
-            weather_mp = document.getElementById('weather_map')
-            map.controls[google.maps.ControlPosition.LEFT_BOTTOM].clear();
-            map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(weather_mp)
+
         })
-        window.history.replaceState('page2', 'Title', "/index")
+        window.history.replaceState('page2', 'Title', "/index");
+
+       document.getElementById('loading_buffer').innerHTML = 'Getting rain forecast...';
+       buffer = document.getElementById('loading_buffer')
+       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
+       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(buffer)
+       document.getElementById("loading_buffer").style.display = "block";
 }
 
 
@@ -166,11 +179,17 @@ function change_url(x){
             temp.push(hour.clock_time, parseFloat(hour.rain_val));
             array.push(temp);
              })
-            console.log(array)
 
+           var options = {
+          title: 'Rain Index for Station ' + x,
+          vAxis: {title: 'mm',  titleTextStyle: {color: '#333'},
+          ticks: [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25]}
+        };
           var chart = google.visualization.arrayToDataTable(array)
+          document.getElementById('loading_buffer').innerHTML = 'Scroll down for rain forecast!';
           var chart_div = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
-          chart_div.draw(chart)
+          chart_div.draw(chart, options)
         })
+        document.getElementById("columnchart_values").style.display = "block";
         window.history.replaceState('page2', 'Title', "/index")
      }
