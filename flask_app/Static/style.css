@@ -19,8 +19,8 @@ body {
 #legend {
     font-family: Arial, sans-serif;
     background: #ffd8b1;
-    padding: 10px;
-    margin: 10px;
+    padding: 2%;
+    margin: 2%;
     border: 3px solid #FD4363;
   }
 
@@ -29,7 +29,7 @@ button {
     color: #20bf6b !important;
     text-transform: uppercase;
     background: #ffffff;
-    padding: 10px;
+    padding: 3%;
     border: 4px solid #20bf6b !important;
     border-radius: 6px;
     display: inline-block;
@@ -50,14 +50,15 @@ th {
 }
 
 #over_map{
+        overflow: auto;
         font-family: Arial, sans-serif;
         background: #fff;
         padding: 0px;
         margin: 0px;
         border: 3px solid #5FAFB0;
        background-position: 0 0;
-	   height: 60px;
-	   width: 30%;
+	   height: 10%;
+	   max-width: 30%;
        [COLOR="Red"]position: absolute;
        left: 0;
        bottom: 0;[/COLOR]
@@ -66,13 +67,15 @@ th {
 
 
 #weather_map {
+
+    overflow: auto;
 	font-family: Arial, sans-serif;
     background: #fff;
     padding: 0px;
     margin: 0px;
     border: 3px solid #7ECD94;
 	background-position: 0 0;
-	height: 50px;
+	height: 8%;
 	width: 30%;
     [COLOR="Red"]position: absolute;
     right: 0;
