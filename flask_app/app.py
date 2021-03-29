@@ -20,16 +20,30 @@ def hello():
 @app.route("/index/<int:station_id>")
 def weather(station_id):
     engine = create_engine(f"mysql+mysqlconnector://{dbinfo.user}:{dbinfo.passwd}@{dbinfo.host}:3306/{dbinfo.database}",
-                           echo=True)
+                           echo=False)
     row_query = "select * from dbbikes_current_info where Station_number = " + str(format(station_id))
     x = pd.read_sql_query(row_query, engine)
     lat = x["latitude"]
     long = x["longitude"]
     x['time'] = x['time'].astype(str)
-    row_query_1 = "select * from weather_forecast where latitude = " + str(format(lat[0])) + "and longitude = " + str(
+    row_query_1 = "select *  from weather_forecast where latitude = " + str(format(lat[0])) + "and longitude = " + str(
         format(long[0])) + "group by clock_time"
     y = pd.read_sql_query(row_query_1, engine)
+    #print(y.head(2))
     return y.to_json(orient="records")
+
+@app.route("/index/<int:station_id>/chart")
+def avg_bike_data(station_id):
+    print('here')
+    engine = create_engine(f"mysql+mysqlconnector://{dbinfo.user}:{dbinfo.passwd}@{dbinfo.host}:3306/{dbinfo.database}",
+                           echo=True)
+    print('here')
+    row_query = "select FLOOR(AVG(available_bike_stands)) as avg,  date_format(DATE_ADD(bikes.time, interval 30 minute), '%H:00:00') as T from weather_hourDB.dbbikes_info as bikes where bikes.Station_number =" + str(format(station_id)) + " group by T ORDER BY T ASC;"
+    df1 = pd.read_sql_query(row_query, engine)
+    print(df1)
+    return df1.to_json(orient="records")
+
+
 
 @app.route("/about")
 def about():
@@ -42,7 +56,7 @@ def stations():
     row_query = "select * from dbbikes_current_info"
     df = pd.read_sql_query(row_query, con=engine)
     df['time'] = df['time'].astype(str)
-    print(df.head(3).to_json(orient="records"))
+    # print(df.head(3).to_json(orient="records"))
     return df.to_json(orient="records")
 
 @app.route("/allstations/<int:station_id>")
