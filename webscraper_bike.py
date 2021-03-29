@@ -53,14 +53,14 @@ def stations_db(x):
 
     try:
         sql = "INSERT INTO dbbikes_info (address, available_bike_stands, available_bikes, " \
-              "banking , bike_stands, bonus, contract_name, date, time, name, Station_number, " \
-              "latitude, longitude, status) " \
-              "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                "banking , bike_stands, bonus, contract_name, date, time, name, Station_number, " \
+                "latitude, longitude, status) " \
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
         current_bikes = "INSERT INTO dbbikes_current_info (address, available_bike_stands, available_bikes, " \
-              "banking , bike_stands, bonus, contract_name, date, time, name, Station_number, " \
-              "latitude, longitude, status) " \
-              "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                "banking , bike_stands, bonus, contract_name, date, time, name, Station_number, " \
+                "latitude, longitude, status) " \
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
         mydb = mysql.connector.connect(
             host=dbinfo.dbhost,
@@ -72,23 +72,19 @@ def stations_db(x):
         mycursor.execute(" SELECT count(*) FROM information_schema.tables WHERE table_name = 'dbbikes_info'")
 
         #Creates table for historical bike info
-
         if (mycursor.fetchone()[0] == 0):
             mycursor.execute("CREATE TABLE dbbikes_info ( id INT PRIMARY KEY AUTO_INCREMENT, address VARCHAR(100), "
                             "available_bike_stands INT, available_bikes INT, "
                             "banking VARCHAR(20), bike_stands INT, bonus VARCHAR(20), "
-                             "contract_name VARCHAR(20), date DATE, time TIME, "
-                             "name VARCHAR(100), Station_number INT, latitude VARCHAR(25), "
-                             "longitude VARCHAR(25),  status VARCHAR(20)) ")
+                            "contract_name VARCHAR(20), date DATE, time TIME, "
+                            "name VARCHAR(100), Station_number INT, latitude VARCHAR(25), "
+                            "longitude VARCHAR(25),  status VARCHAR(20)) ")
+
         mycursor.executemany(sql, x)
         mydb.commit()
 
         #Deletes any duplicate entries for any bike station
-        mycursor.execute("Delete temp1 "
-                         "from dbbikes_info as temp1 "
-                         "Inner Join dbbikes_info as temp2 "
-                         "where temp1.id < temp2.id "
-                         "and temp1.time = temp2.time;")
+        mycursor.execute("Delete from dbbikes_info where id not in(select M_id from(select Max(id) as M_id from dbbikes_info Group by date, time, Station_number) as temp1);")
         mydb.commit()
 
         mycursor.execute(" SELECT count(*) FROM information_schema.tables WHERE table_name = 'dbbikes_current_info'")
@@ -99,9 +95,9 @@ def stations_db(x):
             mycursor.execute("CREATE TABLE dbbikes_current_info ( id INT PRIMARY KEY AUTO_INCREMENT, address VARCHAR(100), "
                             "available_bike_stands INT, available_bikes INT, "
                             "banking VARCHAR(20), bike_stands INT, bonus VARCHAR(20), "
-                             "contract_name VARCHAR(20), date DATE, time TIME, "
-                             "name VARCHAR(100), Station_number INT, latitude VARCHAR(25), "
-                             "longitude VARCHAR(25),  status VARCHAR(20)) ")
+                            "contract_name VARCHAR(20), date DATE, time TIME, "
+                            "name VARCHAR(100), Station_number INT, latitude VARCHAR(25), "
+                            "longitude VARCHAR(25),  status VARCHAR(20)) ")
         #Clears previous entries in current table
         mycursor.execute("truncate dbbikes_current_info;")
 
@@ -112,4 +108,5 @@ def stations_db(x):
         print(e)
         print("Database Failed!")
         return
+
 main()

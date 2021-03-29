@@ -39,6 +39,11 @@
 </div>
  </body>
  <script>
+var long = '{{indiv_stat.longitude[0]}}';
+var lat = '{{indiv_stat.latitude[0]}}';
+localStorage.setItem("coord", long);
+localStorage.setItem("coord2", lat);
+
 var d = '{{indiv_stat.time[0]}}';
  d = '{{indiv_stat.date[0]}} ' + d.split(' ')[2];
 document.getElementById("demo").innerHTML = d;
@@ -58,5 +63,7 @@ else if (sym === "sunny") {
 else if (sym === "LightRainSun" || sym === "RainSun") {
     weather_symbol.innerHTML = "<img1 src='{{url_for('static', filename='light_rain_sunny.png')}}' class='weather_sym' alt='light_rain_sunny'> ";
 }
+
+
  </script>
  </html>
