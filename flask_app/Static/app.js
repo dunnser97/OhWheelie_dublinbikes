@@ -10,7 +10,7 @@ function initMap(){
     center: { lat: 53.3493, lng: -6.2611},
     zoom: 12,
   });
-
+station_zoom()
 add_legend()
 
 data.forEach(station => {
@@ -192,4 +192,53 @@ function change_url(x){
         })
         document.getElementById("columnchart_values").style.display = "block";
         window.history.replaceState('page2', 'Title', "/index")
+        url = "/index/" + x + "/chart"
+        draw_avg_bikes(x)
+        window.history.pushState('page2', 'Title', url);
      }
+
+function draw_avg_bikes(x) {
+    fetch("/index/"+ x + "/chart").then(response => {
+        return response.json(); }).then(data3 => {
+
+        console.log(data3)
+        var array = [];
+        var Header= ['Time', 'Avg Bikes'];
+        array.push(Header);
+        data3.forEach(hour => {
+        var temp=[];
+            temp.push(hour.T, parseFloat(hour.avg));
+            array.push(temp);
+             })
+
+         window.history.replaceState('page2', 'Title', "/index");
+           var options = {
+          title: 'Average Bikes per hour for Station ' + x,
+          color: ['#e0440e', '#e6693e', '#ec8f6e', '#f3b49f', '#f6c7b6'],
+          vAxis: {title: 'Bikes Available',  titleTextStyle: {color: '#333'},
+          ticks: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32]}
+        };
+        var chart = google.visualization.arrayToDataTable(array)
+         var chart_div = new google.visualization.ColumnChart(document.getElementById("bike_values"));
+          chart_div.draw(chart, options)
+        })
+            document.getElementById("bike_values").style.display = "block";
+}
+
+function station_zoom(){
+        var longcoords = localStorage.getItem("coord");
+        var latcoords = localStorage.getItem("coord2");
+        console.log(longcoords, latcoords)
+
+        if (longcoords == null){
+        return }
+
+        else    {
+        var myOptions = {
+        center: { lat: parseFloat(latcoords), lng: parseFloat(longcoords)},
+        zoom : 100};
+        map.setOptions(myOptions);
+        }
+        window.localStorage.clear();
+        window.history.replaceState('page2', 'Title', "/index");
+}
