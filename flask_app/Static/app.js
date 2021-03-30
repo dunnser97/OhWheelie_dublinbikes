@@ -8,7 +8,7 @@ function initMap(){
    document.getElementById("loading").style.display = "none";
    map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 53.3493, lng: -6.2611},
-    zoom: 12,
+    zoom: 14,
   });
 station_zoom()
 add_legend()
@@ -34,9 +34,10 @@ data.forEach(station => {
             });
             marker.addListener("click", () => {
                 const infowindow = new google.maps.InfoWindow({
-                    content: station.address + '<br>' + station.available_bikes + ' bikes available' + '<br>' +
-                    station.available_bike_stands + ' available bike stands' + '<br>'
-                      + " " +  '<button onclick="station_details(\'' + station.id + '\'); change_url(\'' + station.id + '\');drawChart(\'' + station.id + '\')">Station Details</button>'
+                    content: '<h4>' + station.address + '</h4><br><h5>' + station.available_bikes + ' Bikes Available' + '</h5><br><h5>' +
+                    station.available_bike_stands + ' Bike Stands Available' + '</h5><br><h5>'
+                     + 'Last Updated: ' + station.time.substring(6, 15) + '</h5><br>'
+                      + " " +  '<button id="details_button" onclick="station_details(\'' + station.id + '\'); change_url(\'' + station.id + '\');drawChart(\'' + station.id + '\')">Station Details</button>'
                 })
             infowindow.open(map, marker);
 
@@ -71,11 +72,12 @@ function station_details(picked){
                 }
             })
             station_output += "</table>";
+            /*
             document.getElementById("over_map").innerHTML = station_output;
             bike_data = document.getElementById('over_map');
-            map.controls[google.maps.ControlPosition.LEFT_CENTER].clear();
-            map.controls[google.maps.ControlPosition.LEFT_CENTER].push(bike_data)
-            document.getElementById("over_map").style.display = "block";
+            map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
+            map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(bike_data)
+            document.getElementById("over_map").style.display = "block"; */
         })
       }
 
@@ -116,8 +118,8 @@ function add_legend(){
 function change_url(x){
        document.getElementById('weather_map').innerHTML = 'Getting weather data...';
        weather_mp = document.getElementById('weather_map')
-       map.controls[google.maps.ControlPosition.LEFT_BOTTOM].clear();
-       map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(weather_mp)
+       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
+       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(weather_mp)
        document.getElementById("weather_map").style.display = "block";
 
        url = "/index/" + x
@@ -156,10 +158,10 @@ function change_url(x){
         })
         window.history.replaceState('page2', 'Title', "/index");
 
-       document.getElementById('loading_buffer').innerHTML = 'Getting rain forecast...';
+      document.getElementById('loading_buffer').innerHTML = 'Getting rain forecast...';
        buffer = document.getElementById('loading_buffer')
-       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
-       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(buffer)
+       map.controls[google.maps.ControlPosition.TOP_CENTER].clear();
+       map.controls[google.maps.ControlPosition.TOP_CENTER].push(buffer)
        document.getElementById("loading_buffer").style.display = "block";
 }
 

@@ -5,7 +5,7 @@
     <title>Stations</title>
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
 </head>
-<body id="ind_stations_page">
+<body class="stationspage">
 
     <div class="nav">
         <ul>
@@ -17,27 +17,31 @@
 
 
 <div id="basic_info">
+    <table><th><h1>{{ indiv_stat.address[0] }}</h1></th> </table>
 
-    <div class="temp">Station number:</div>
-    <div class="temp">Address:</div>
-    <div class="temp">Available Bikes:</div>
-    <div class="temp">Available Bike Stands:</div>
-    <div class="temp">Most recent update:</div>
-    <div class="temp">Status:</div>
-    <div class="temp">Weather: </div>
-    <div class="temp">Icon: </div>
+    <table>
+    <tr>
+    <th>Station number</th>
+    <th>Available Bikes</th>
+    <th>Available Bike Stands</th>
+    <th>Most recent update</th>
+    <th>Status</th>
+    <th>Weather</th>
+    <th>Weather Icon</th>
+    <th>View on Map</th>
+    </tr>
 
-    <div id="divider">
-
-        <div class="temp">{{ indiv_stat.Station_number[0] }}</div>
-        <div class="temp">{{ indiv_stat.address[0] }}</div>
-        <div class="temp">{{ indiv_stat.available_bikes[0] }}</div>
-        <div class="temp">{{ indiv_stat.available_bike_stands[0] }}</div>
-        <div class="temp"><a id="demo"></a></div>
-        <div class="temp">{{ indiv_stat.status[0] }}</div>
-        <div class="temp">{{ weather_data.weather_symbol[0] }} <br> {{weather_data.temp_val[0]}}<span>&#176;</span>C <br> {{weather_data.rain_val[0]}}mm</div>
-        <div class="temp"><div id="weather_sym"></div></div>
-    </div>
+    <tr>
+    <th>{{ indiv_stat.Station_number[0] }}</th>
+    <th>{{ indiv_stat.available_bikes[0] }}</th>
+    <th>{{ indiv_stat.available_bike_stands[0] }}</th>
+    <th><a id="demo"></a></th>
+    <th>{{ indiv_stat.status[0] }}</th>
+    <th>{{ weather_data.weather_symbol[0] }} <br> {{weather_data.temp_val[0]}}<span>&#176;</span>C <br> {{weather_data.rain_val[0]}}mm</th>
+    <th><div id="weather_sym"></div></th>
+    <th><a href="/"><img src={{url_for('static', filename='marker.png')}}></a></th>
+    </tr>
+    </table>
 </div>
  </body>
  <script>
@@ -47,9 +51,8 @@ localStorage.setItem("coord", long);
 localStorage.setItem("coord2", lat);
 
 var d = '{{indiv_stat.time[0]}}';
- d = '{{indiv_stat.date[0]}} ' + d.split(' ')[2];
+d = '{{indiv_stat.date[0]}} ' + d.split(' ')[2];
 document.getElementById("demo").innerHTML = d;
-
 
 var sym = '{{weather_data.weather_symbol[0]}}';
 var weather_symbol = document.getElementById("weather_sym")
@@ -57,14 +60,16 @@ if ( sym === 'Cloud' ) {
     weather_symbol.innerHTML = "<img1 src='{{url_for('static', filename='Cloudy.png')}}' class='weather_sym' alt='Cloudy' style='object-fit:contain; width:200px;'>";
 }
 else if (sym === "PartlyCloud" || sym === "LightCloud") {
-    weather_symbol.innerHTML = "<img1 src='{{url_for('static', filename='Partlycloud.jpg')}}' class='weather_sym' alt='Partly Cloudy' >";
+    weather_symbol.innerHTML = "<img1 src='{{url_for('static', filename='partlycloudy.png')}}' class='weather_sym' alt='Partly Cloudy' >";
 }
 else if (sym === "sunny") {
-    weather_symbol.innerHTML = "<img1 src='{{url_for('static', filename='sunny.png')}}' class='weather_sym' alt='Sunny'> ";
+    weather_symbol.innerHTML = "<img1 src='{{url_for('static', filename='Sun.png')}}' class='weather_sym' alt='Sunny'> ";
 }
 else if (sym === "LightRainSun" || sym === "RainSun") {
     weather_symbol.innerHTML = "<img1 src='{{url_for('static', filename='light_rain_sunny.png')}}' class='weather_sym' alt='light_rain_sunny'> ";
 }
+
+ console.log(sym)
 
 
  </script>
