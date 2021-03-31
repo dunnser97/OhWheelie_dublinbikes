@@ -38,7 +38,7 @@
                     <th><a id="demo"></a></th>
                     <th>{{ indiv_stat.status[0] }}</th>
                     <th>{{ weather_data.weather_symbol[0] }} <br> {{weather_data.temp_val[0]}}<span>&#176;</span>C <br> {{weather_data.rain_val[0]}}mm</th>
-                    <th><img src="/static/{{weather_data.weather_symbol[0]}}.png" width="70px"></th>
+                    <th><img src="/static/images/{{weather_data.weather_symbol[0]}}.png"></th>
                     <th><a href="/"><img src={{url_for('static', filename='marker.png')}}></a></th>
                 </tr>
             </table>
