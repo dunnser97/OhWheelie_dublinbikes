@@ -242,7 +242,7 @@ function station_zoom(){
         else    {
         var myOptions = {
         center: { lat: parseFloat(latcoords), lng: parseFloat(longcoords)},
-        zoom : 80
+        zoom : 70
         };
         map.setOptions(myOptions);
         }
