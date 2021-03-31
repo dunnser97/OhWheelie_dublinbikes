@@ -153,16 +153,20 @@ function change_url(x){
                 }
             })
             weather_output += "</table>";
+
+            weather_mp = document.getElementById('weather_map')
+            map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
+            map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(weather_mp)
             document.getElementById('weather_map').innerHTML = weather_output;
 
         })
         window.history.replaceState('page2', 'Title', "/index");
 
-      document.getElementById('loading_buffer').innerHTML = 'Getting rain forecast...';
+      /* document.getElementById('loading_buffer').innerHTML = 'Getting rain forecast...';
        buffer = document.getElementById('loading_buffer')
        map.controls[google.maps.ControlPosition.TOP_CENTER].clear();
        map.controls[google.maps.ControlPosition.TOP_CENTER].push(buffer)
-       document.getElementById("loading_buffer").style.display = "block";
+       document.getElementById("loading_buffer").style.display = "block";*/
 }
 
 
@@ -238,7 +242,8 @@ function station_zoom(){
         else    {
         var myOptions = {
         center: { lat: parseFloat(latcoords), lng: parseFloat(longcoords)},
-        zoom : 100};
+        zoom : 80
+        };
         map.setOptions(myOptions);
         }
         window.localStorage.clear();
