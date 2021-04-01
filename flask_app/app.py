@@ -92,10 +92,21 @@ def temperature(station_id):
     x = station_num(bike_engine, station_id)
     lat = x["latitude"]
     long = x["longitude"]
+    cur_temp = "SELECT temp_val, ADDTIME(clock_time, '1:00:00') as clock_time FROM weather_hourDB.weather_forecast " \
+               "where longitude = " + str(format(long[0])) + " and latitude = " + str(format(lat[0])) +";"
+    temp = pd.read_sql_query(cur_temp, engine)
+    return temp.to_json(orient="records")
+
+"""
+@app.route("/allstations/<int:station_id>/avg_bikes_day")
+def temperature(station_id):
+    bike_engine = create_engine(dbinfo.bike_engine)
+    x = station_num(bike_engine, station_id)
     cur_temp = "SELECT temp_val, clock_time FROM weather_hourDB.weather_forecast " \
                "where longitude = " + str(format(long[0])) + " and latitude = " + str(format(lat[0])) +";"
     temp = pd.read_sql_query(cur_temp, engine)
     return temp.to_json(orient="records")
+"""
 
 @app.errorhandler(404)
 def page_not_found(e):

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <head>
         <title>Stations</title>
         <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
@@ -42,6 +43,22 @@
                     <th><a href="/"><img src={{url_for('static', filename='marker.png')}}></a></th>
                 </tr>
             </table>
+        </div>
+        <div class="graph">
+        <button  id="Temperature" onclick="Temperature()">Temperature</button>
+        <button  id="Percipitation" onclick="percipitation()">Rainfall</button>
+        <div class="chart">
+            <div id = 'Weather_chart'></div>
+        </div>
+        </div>
+        <div id = 'columnchart_values'></div>
+        </div>
+        <div class="graph">
+            <button  onclick="draw_avg_bikes()" >Avg. Bike Occupancy Hourly</button>
+            <button onclick="percipitation()">Avg. Bike Occupancy Daily</button>
+            <div class="chart">
+                <div id = 'bike_values'></div>
+            </div>
         </div>
     </body>
     <script>
@@ -128,6 +145,7 @@
             })
             document.getElementById("bike_values").style.display = "block";
         }
- draw_avg_bikes()
+        Temperature()
+        draw_avg_bikes()
     </script>
 </html>
