@@ -31,7 +31,6 @@ def weather(station_id):
 
 @app.route("/index/<int:station_id>/chart")
 def avg_bike_data(station_id):
-    print('here')
     engine = create_engine(dbinfo.engine)
     print('here')
     row_query = "select FLOOR(AVG(available_bike_stands)) as avg,  date_format(DATE_ADD(bikes.time, interval 30 minute), '%H:00:00') as T from weather_hourDB.dbbikes_info as bikes where bikes.Station_number =" + str(format(station_id)) + " group by T ORDER BY T ASC;"
@@ -58,6 +57,7 @@ def stations():
 @app.route("/allstations/<int:station_id>")
 @cache.cached(timeout=600)
 def station(station_id):
+    print(station_id)
     engine = create_engine(dbinfo.engine)
     bike_engine = create_engine(dbinfo.bike_engine)
     x = station_num(bike_engine, station_id)

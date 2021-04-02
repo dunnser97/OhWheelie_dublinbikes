@@ -37,7 +37,7 @@ data.forEach(station => {
                     content: '<h4>' + station.address + '</h4><br><h5>' + station.available_bikes + ' Bikes Available' + '</h5><br><h5>' +
                     station.available_bike_stands + ' Bike Stands Available' + '</h5><br><h5>'
                      + 'Last Updated: ' + station.time.substring(6, 15) + '</h5><br>'
-                      + " " +  '<button id="details_button" onclick="station_details(\'' + station.id + '\'); change_url(\'' + station.id + '\');drawChart(\'' + station.id + '\')">Station Details</button>'
+                      + " " +  '<button id="details_button" onclick="station_details(\'' + station.Station_number + '\'); change_url(\'' + station.Station_number + '\');drawChart(\'' + station.Station_number + '\')">Station Details</button>'
                 })
             infowindow.open(map, marker);
 
@@ -45,11 +45,17 @@ data.forEach(station => {
         })
    }).catch(err => {
     console.log(err);
+    const errorDiv = document.createElement("div");
+    const newContent = document.createTextNode("An error has occurred.The map cannot be loaded at this time.");
+     errorDiv.appendChild(newContent);
+     var mapdiv = document.getElementById("map");
+     document.body.insertBefore(errorDiv, mapdiv);
     })
 }
 
 
 function station_details(picked){
+        try {
         document.getElementById("over_map").innerHTML = "<p>Retrieving Data</p>";
         fetch("/stations").then(response => {
             return response.json(); }).then(data2 => {
@@ -59,7 +65,7 @@ function station_details(picked){
             + "<th>Last Update</th><th>Station Analysis</th></tr>";
 
             data2.forEach(station => {
-                if (station.id == picked){
+                if (station.Station_number == picked){
 
                 time = station.time;
                 var clock_time = time.substring(6, 15);
@@ -68,7 +74,7 @@ function station_details(picked){
                 station_output += "<td>" + station.available_bikes+ "</td>"
                 station_output += "<td>" + station.available_bike_stands + "</td>"
                 station_output += "<td>" + clock_time + "</td>"
-                station_output += "<td><a href='/allstations/" + station.id + "'>Station Details" + "</a></td></tr>";
+                station_output += "<td><a href='/allstations/" + station.Station_number + "'>Station Details" + "</a></td></tr>";
                 }
             })
             station_output += "</table>";
@@ -79,6 +85,8 @@ function station_details(picked){
             map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(bike_data)
             document.getElementById("over_map").style.display = "block"; */
         })
+      }catch(err){
+      console.log(err)}
       }
 
 function add_legend(){
@@ -138,7 +146,7 @@ function change_url(x){
         m = ":00"}
     current_time = h.toString() + m + ":00"
 
-            console.log('here')
+
             var weather_output = "<table>";
             weather_output += "<tr><th>Current Weather</th><th>Weather for:</th>"
             + "<th>Rain Index</th><th>Temperature</th><th>Cloud % Coverage</th></tr>";
@@ -159,8 +167,16 @@ function change_url(x){
             map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(weather_mp)
             document.getElementById('weather_map').innerHTML = weather_output;
 
-        })
-        window.history.replaceState('page2', 'Title', "/index");
+        }).catch(err => {
+         console.log(err);
+       document.getElementById('weather_map').innerHTML = '<h3>Sorry! The weather data for this station'
+       + '<br>cannot be loaded at this time! <br> Try a different station near me!</h3>';
+       weather_mp = document.getElementById('weather_map')
+       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
+       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(weather_mp)
+       document.getElementById("weather_map").style.display = "block"; })
+
+      window.history.replaceState('page2', 'Title', "/index");
 
       /* document.getElementById('loading_buffer').innerHTML = 'Getting rain forecast...';
        buffer = document.getElementById('loading_buffer')
@@ -171,6 +187,7 @@ function change_url(x){
 
 
  function drawChart(x) {
+      try {
         google.charts.load('current', {packages: ['corechart']});
         url = "/index/" + x
         window.history.pushState('page2', 'Title', url);
@@ -191,23 +208,43 @@ function change_url(x){
           vAxis: {title: 'mm',  titleTextStyle: {color: '#333'},
           ticks: [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25]}
         };
+            try{
           var chart = google.visualization.arrayToDataTable(array)
           document.getElementById('loading_buffer').innerHTML = 'Scroll down for rain forecast!';
           var chart_div = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
           chart_div.draw(chart, options)
-        })
+
+          }
+          catch {
+          document.getElementById('columnchart_values').innerHTML = '<h3>The weather charts cannot be loaded at this time</h3>';
+          document.getElementById("columnchart_values").style.display = "block";
+          window.history.replaceState('page2', 'Title', "/index");}
+
+           }).catch(err => {
+        console.log(err);
+        document.getElementById('columnchart_values').innerHTML = '<h3>The weather charts for'+
+         ' station ' + x + ' cannot be loaded at this time</h3>';
+         window.history.replaceState('page2', 'Title', "/index")
+        document.getElementById("columnchart_values").style.display = "block";
+
+    })
         document.getElementById("columnchart_values").style.display = "block";
         window.history.replaceState('page2', 'Title', "/index")
         url = "/index/" + x + "/chart"
         draw_avg_bikes(x)
         window.history.pushState('page2', 'Title', url);
+        }
+        catch(err) {
+        console.log(err)
+        document.getElementById('columnchart_values').innerHTML = '<h3>The weather charts for' +
+          'station ' + x + ' cannot be loaded at this time</h3>';
+        document.getElementById("columnchart_values").style.display = "block";
+        }
      }
-
 function draw_avg_bikes(x) {
     fetch("/index/"+ x + "/chart").then(response => {
         return response.json(); }).then(data3 => {
 
-        console.log(data3)
         var array = [];
         var Header= ['Time', 'Avg Bikes'];
         array.push(Header);
@@ -227,7 +264,15 @@ function draw_avg_bikes(x) {
         var chart = google.visualization.arrayToDataTable(array)
          var chart_div = new google.visualization.ColumnChart(document.getElementById("bike_values"));
           chart_div.draw(chart, options)
+        }).catch(err => {
+        console.log(err);
+        document.getElementById('bike_values').innerHTML = '<h3>The bike charts for'+
+         ' station ' + x + ' cannot be loaded at this time</h3>';
+         window.history.replaceState('page2', 'Title', "/index")
+        document.getElementById("bike_values").style.display = "block";
         })
+
+
             document.getElementById("bike_values").style.display = "block";
 }
 
