@@ -85,5 +85,36 @@ def station_weather(engine, lat, long):
     y = pd.read_sql_query(row_query_1, engine)
     return y
 
+@app.route("/allstations/<int:station_id>/temp")
+def temperature(station_id):
+    engine = create_engine(dbinfo.engine)
+    bike_engine = create_engine(dbinfo.bike_engine)
+    x = station_num(bike_engine, station_id)
+    lat = x["latitude"]
+    long = x["longitude"]
+    cur_temp = "SELECT temp_val, ADDTIME(clock_time, '1:00:00') as clock_time FROM weather_hourDB.weather_forecast " \
+               "where longitude = " + str(format(long[0])) + " and latitude = " + str(format(lat[0])) +";"
+    temp = pd.read_sql_query(cur_temp, engine)
+    return temp.to_json(orient="records")
+
+"""
+@app.route("/allstations/<int:station_id>/avg_bikes_day")
+def temperature(station_id):
+    bike_engine = create_engine(dbinfo.bike_engine)
+    x = station_num(bike_engine, station_id)
+    cur_temp = "SELECT temp_val, clock_time FROM weather_hourDB.weather_forecast " \
+               "where longitude = " + str(format(long[0])) + " and latitude = " + str(format(lat[0])) +";"
+    temp = pd.read_sql_query(cur_temp, engine)
+    return temp.to_json(orient="records")
+"""
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return "<h1>Error 404 - Page Not Found</h1>"
+
+@app.errorhandler(500)
+def server_error(e):
+    return "<h1>Error 500</h1>"
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
