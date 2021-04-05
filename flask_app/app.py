@@ -71,7 +71,7 @@ def station(station_id):
     x = station_num(bike_engine, station_id)
     lat = x["latitude"]
     long = x["longitude"]
-    if x.shape[0]==0:
+    if x.shape[0] == 0:
         return "<h1>Error 404 - Page Not Found</h1>"
     y = station_weather(engine, lat, long)
     return render_template("stations_individual.html", indiv_stat=x, weather_data=y)
@@ -85,8 +85,8 @@ def station_num(bike_engine, station_id):
     date_1 = date.strftime("%m")
     date_2 = date.strftime("%d")
     date_2 = int(date_2)
-    date = int(date_1)
-    if (date > 3 and date < 11):
+    month = int(date_1)
+    if (month > 3 and month < 11) or (month == 3 and date_2 > 27):
         row_query = "select address, available_bike_stands, available_bikes, banking, bike_stands, date, ADDTIME(time, '1:00:00') as time, name, Station_number, latitude, longitude, status from dbbikes_current_info where Station_number = " + str(format(station_id))
         x = pd.read_sql_query(row_query, bike_engine)
         return x
@@ -100,9 +100,9 @@ def station_weather(engine, lat, long):
     date_1 = date.strftime("%m")
     date_2 = date.strftime("%d")
     date_2 = int(date_2)
-    date = int(date_1)
-    if (date > 3 and date < 11):
-        row_query_1 = "select date, ADDTIME(clock_time, '1:00:00') as clock_time ,latitude, longitude, temp_val, cloudi_val, rain_val, weather_symbol from weather_forecast where latitude = " + str(format(lat[0])) + "and longitude = " + str(
+    month = int(date_1)
+    if (month > 3 and month < 11) or (month == 3 and date_2 > 27):
+        row_query_1 = " select date, ADDTIME(clock_time, '1:00:00') as clock_time , latitude, longitude, temp_val, humidity_val, cloudi_val, rain_val, wind_val, weather_symbol from weather_forecast where latitude = " + str(format(lat[0])) + "and longitude = " + str(
             format(long[0])) + "group by clock_time"
         y = pd.read_sql_query(row_query_1, engine)
         return y
@@ -119,10 +119,21 @@ def temperature(station_id):
     x = station_num(bike_engine, station_id)
     lat = x["latitude"]
     long = x["longitude"]
-    cur_temp = "SELECT temp_val, ADDTIME(clock_time, '1:00:00') as clock_time FROM weather_hourDB.weather_forecast " \
-               "where longitude = " + str(format(long[0])) + " and latitude = " + str(format(lat[0])) +";"
-    temp = pd.read_sql_query(cur_temp, engine)
-    return temp.to_json(orient="records")
+    date = datetime.datetime.now()
+    date_1 = date.strftime("%m")
+    date_2 = date.strftime("%d")
+    date_2 = int(date_2)
+    month = int(date_1)
+    if (month > 3 and month < 11) or (month == 3 and date_2 > 27):
+        cur_temp = "SELECT temp_val, ADDTIME(clock_time, '1:00:00') as clock_time FROM weather_hourDB.weather_forecast " \
+                   "where longitude = " + str(format(long[0])) + " and latitude = " + str(format(lat[0])) +";"
+        temp = pd.read_sql_query(cur_temp, engine)
+        return temp.to_json(orient="records")
+    else:
+        cur_temp = "SELECT temp_val, clock_time FROM weather_hourDB.weather_forecast " \
+                   "where longitude = " + str(format(long[0])) + " and latitude = " + str(format(lat[0])) + ";"
+        temp = pd.read_sql_query(cur_temp, engine)
+        return temp.to_json(orient="records")
 
 @app.route("/allstations/<int:station_id>/avg_bikes_day")
 def avg_bikes_day(station_id):
