@@ -1,24 +1,8 @@
-
-function load(){
-
-        var x ='{{ indiv_stat.Station_number[0] }}'
-        var long = '{{indiv_stat.longitude[0]}}';
-        var lat = '{{indiv_stat.latitude[0]}}';
-        localStorage.setItem("coord", long);
-        localStorage.setItem("coord2", lat);
-
-        var d = '{{indiv_stat.time[0]}}';
-        d = '{{indiv_stat.date[0]}} ' + d.split(' ')[2];
-        document.getElementById("demo").innerHTML = d;
-
-        google.charts.load('current', {'packages':['corechart']});
-        google.charts.setOnLoadCallback(Temperature);
-
 function Temperature() {
             fetch("/allstations/"+ x +"/temp").then(response => {
                 return response.json(); }).then(data => {
                     var array_temp = [];
-                    var Header = ['Time', 'Rain Index']
+                    var Header = ['Time', 'Temperature']
                     array_temp.push(Header);
                     data.forEach(hour => {
                     var temp_hour=[];
@@ -111,4 +95,3 @@ function avg_bikes_day() {
         }
         Temperature()
         draw_avg_bikes()
-   }
