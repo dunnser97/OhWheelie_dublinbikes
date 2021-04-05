@@ -15,9 +15,8 @@ function filterSearch() {
                 }
 
             }
-
-    fetch("/stations").then(response => {
-                return response.json();
+fetch("/stations").then(response => {
+        return response.json();
             }).then(data => {
                 console.log("data: ", data);
 
@@ -32,8 +31,10 @@ function filterSearch() {
                     results_output += "</tr>";
                 })
                 results_output += "</table>";
-
                 document.getElementById("searchresults").innerHTML = results_output;
 
-            })
+            }).catch(err => {
+                console.log(err)
+                document.getElementById("searchresults").innerHTML = "<h1>Error! The stations cannot be loaded at this time</h1>";
+})
 

@@ -19,8 +19,15 @@ function Temperature() {
 
         var chart_div = new google.visualization.LineChart(document.getElementById("Weather_chart"));
         chart_div.draw(chart, options)
-        })
+        }).catch(err => {
+        console.log(err);
+        document.getElementById('Weather_chart').innerHTML = '<h3>The weather charts for'+
+         ' this station cannot be loaded at this time</h3>';
+         })
         }
+
+
+
  function percipitation() {
             google.charts.load('current', {packages: ['corechart']});
             fetch("/index/"+ x).then(response => {
@@ -43,7 +50,11 @@ function Temperature() {
         var chart = google.visualization.arrayToDataTable(array)
         var chart_div = new google.visualization.ColumnChart(document.getElementById("Weather_chart"));
         chart_div.draw(chart, options)
-        })
+        }).catch(err => {
+        console.log(err);
+        document.getElementById('Weather_chart').innerHTML = '<h3>The weather charts for'+
+         ' this station cannot be loaded at this time</h3>';
+         })
         }
 function draw_avg_bikes() {
             fetch("/index/"+ x + "/chart").then(response => {
@@ -65,7 +76,11 @@ function draw_avg_bikes() {
                 var chart = google.visualization.arrayToDataTable(array)
                 var chart_div = new google.visualization.ColumnChart(document.getElementById("bike_values"));
                 chart_div.draw(chart, options)
-            })
+            }).catch(err => {
+        console.log(err);
+        document.getElementById('bike_values').innerHTML = '<h3>The bike charts for'+
+         ' this station cannot be loaded at this time</h3>';
+         })
             document.getElementById("bike_values").style.display = "block";
         }
 
@@ -90,8 +105,12 @@ function avg_bikes_day() {
                 var chart = google.visualization.arrayToDataTable(array)
                 var chart_div = new google.visualization.ColumnChart(document.getElementById("bike_values"));
                 chart_div.draw(chart, options)
-            })
+            }).catch(err => {
+                console.log(err);
+                document.getElementById('bike_values').innerHTML = '<h3>The bike charts for'+
+         ' this station cannot be loaded at this time</h3>';
+         })
             document.getElementById("bike_values").style.display = "block";
         }
-        Temperature()
-        draw_avg_bikes()
+Temperature()
+draw_avg_bikes()
