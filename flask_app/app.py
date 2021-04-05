@@ -40,7 +40,7 @@ def avg_bike_data(station_id):
 
 @app.route("/about")
 def about():
-    return app.send_static_file("about.html")
+    return render_template("about.html")
 
 @app.route("/stations")
 @cache.cached(timeout=600)
