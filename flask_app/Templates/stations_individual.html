@@ -55,7 +55,7 @@
         </div>
         <div class="graph">
             <button  onclick="draw_avg_bikes()" >Avg. Bike Occupancy Hourly</button>
-            <button onclick="percipitation()">Avg. Bike Occupancy Daily</button>
+            <button onclick="avg_bikes_day()">Avg. Bike Occupancy Daily</button>
             <div class="chart">
                 <div id = 'bike_values'></div>
             </div>
@@ -135,6 +135,31 @@
                     })
                     var options = {
                         title: 'Average Bikes per hour for Station ' + x,
+                        color: ['#e0440e', '#e6693e', '#ec8f6e', '#f3b49f', '#f6c7b6'],
+                        vAxis: {title: 'Bikes Available',  titleTextStyle: {color: '#333'},
+                        ticks: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32]}
+                    };
+                var chart = google.visualization.arrayToDataTable(array)
+                var chart_div = new google.visualization.ColumnChart(document.getElementById("bike_values"));
+                chart_div.draw(chart, options)
+            })
+            document.getElementById("bike_values").style.display = "block";
+        }
+
+        function avg_bikes_day() {
+            fetch("/allstations/"+ x + "/avg_bikes_day").then(response => {
+                return response.json(); }).then(data4 => {
+                    var array = [];
+                    var Header= ['Time', 'Avg Bikes'];
+                    array.push(Header);
+                    data4.forEach(day => {
+                        var temp=[];
+                        var weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                        temp.push(day.day, parseFloat(day.avg_day));
+                        array.push(temp);
+                    })
+                    var options = {
+                        title: 'Average Bikes per day for Station ' + x,
                         color: ['#e0440e', '#e6693e', '#ec8f6e', '#f3b49f', '#f6c7b6'],
                         vAxis: {title: 'Bikes Available',  titleTextStyle: {color: '#333'},
                         ticks: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32]}
