@@ -1,5 +1,7 @@
-// Function for index page
+// Functions for index page
 let map;
+
+// Initate map
 function initMap(){
     fetch("/stations").then(response => {
      return response.json(); }).then(data => {
@@ -10,9 +12,13 @@ function initMap(){
     center: { lat: 53.3493, lng: -6.2611},
     zoom: 14,
   });
+
+// Check if station zoom if coming from individual station page
 station_zoom()
+// add legend to map
 add_legend()
 
+//add markers and appropriate icons
 data.forEach(station => {
         if (parseInt(station.available_bikes) < 1){
         var myIcon = ('http://maps.google.com/mapfiles/ms/icons/blue-dot.png')
@@ -37,12 +43,12 @@ data.forEach(station => {
                     content: '<h4>' + station.address + '</h4><br><h5>' + station.available_bikes + ' Bikes Available' + '</h5><br><h5>' +
                     station.available_bike_stands + ' Bike Stands Available' + '</h5><br><h5>'
                      + 'Last Updated: ' + station.time.substring(6, 15) + '</h5><br>'
-                      + " " +  '<button id="details_button" onclick="station_details(\'' + station.Station_number + '\'); change_url(\'' + station.Station_number + '\');drawChart(\'' + station.Station_number + '\')">Station Details</button>'
+                      + " " +  '<button id="details_button" onclick="change_url(\'' + station.Station_number + '\');drawChart(\'' + station.Station_number + '\')">Station Details</button>'
                 })
             infowindow.open(map, marker);
 
            })
-        })
+        }) // Print error div if map cannot load
    }).catch(err => {
     console.log(err);
     const errorDiv = document.createElement("div");
@@ -53,43 +59,9 @@ data.forEach(station => {
     })
 }
 
-
-function station_details(picked){
-        try {
-        document.getElementById("over_map").innerHTML = "<p>Retrieving Data</p>";
-        fetch("/stations").then(response => {
-            return response.json(); }).then(data2 => {
-
-            var station_output = "<table>";
-            station_output += "<tr><th>Station</th><th>Available Bikes</th><th>Available Stands</th>"
-            + "<th>Last Update</th><th>Station Analysis</th></tr>";
-
-            data2.forEach(station => {
-                if (station.Station_number == picked){
-
-                time = station.time;
-                var clock_time = time.substring(6, 15);
-
-                station_output += "<tr><td>" + station.address + "</td>";
-                station_output += "<td>" + station.available_bikes+ "</td>"
-                station_output += "<td>" + station.available_bike_stands + "</td>"
-                station_output += "<td>" + clock_time + "</td>"
-                station_output += "<td><a href='/allstations/" + station.Station_number + "'>Station Details" + "</a></td></tr>";
-                }
-            })
-            station_output += "</table>";
-            /*
-            document.getElementById("over_map").innerHTML = station_output;
-            bike_data = document.getElementById('over_map');
-            map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
-            map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(bike_data)
-            document.getElementById("over_map").style.display = "block"; */
-        })
-      }catch(err){
-      console.log(err)}
-      }
-
+// add legend with google map png files
 function add_legend(){
+
       const legend = document.getElementById("legend");
 
         const icons = {
@@ -118,23 +90,27 @@ function add_legend(){
           div.innerHTML = '<img src="' + icon + '"> ' + name;
           legend.appendChild(div);
         }
+        // push over map and display
         map.controls[google.maps.ControlPosition.RIGHT_TOP].push(legend);
         document.getElementById("legend").style.display = "block";
 }
 
-
+// change url according to station to get weather
 function change_url(x){
+        // loading div in case of slow loading
        document.getElementById('weather_map').innerHTML = 'Getting weather data...';
        weather_mp = document.getElementById('weather_map')
        map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
        map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(weather_mp)
        document.getElementById("weather_map").style.display = "block";
 
+        // change url and get response
        url = "/index/" + x
-    window.history.pushState('page2', 'Title', url);
-    fetch("/index/"+ x).then(response => {
-     return response.json(); }).then(data => {
+        window.history.pushState('page2', 'Title', url);
+        fetch("/index/"+ x).then(response => {
+        return response.json(); }).then(data => {
 
+    // get current date time
     var today = new Date();
     var h = today.getHours();
     var m = today.getMinutes();
@@ -156,6 +132,7 @@ function change_url(x){
             weather_output += "<tr><th>Current Weather</th><th>Weather for:</th>"
             + "<th>Rain Index</th><th>Temperature</th><th>Cloud % Coverage</th></tr>";
 
+            // match weather for current time
             data.forEach(hour => {
                 if (hour.clock_time == current_time){
                 weather_output += "<tr><td>" + hour.weather_symbol + "</td>";
@@ -167,11 +144,13 @@ function change_url(x){
             })
             weather_output += "</table>";
 
+            // push over map
             weather_mp = document.getElementById('weather_map')
             map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
             map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(weather_mp)
             document.getElementById('weather_map').innerHTML = weather_output;
 
+            // else catch the error and restore url
         }).catch(err => {
          console.log(err);
        document.getElementById('weather_map').innerHTML = '<h3>Sorry! The weather data for this station'
@@ -182,15 +161,10 @@ function change_url(x){
        document.getElementById("weather_map").style.display = "block"; })
 
       window.history.replaceState('page2', 'Title', "/index");
-
-      /* document.getElementById('loading_buffer').innerHTML = 'Getting rain forecast...';
-       buffer = document.getElementById('loading_buffer')
-       map.controls[google.maps.ControlPosition.TOP_CENTER].clear();
-       map.controls[google.maps.ControlPosition.TOP_CENTER].push(buffer)
-       document.getElementById("loading_buffer").style.display = "block";*/
 }
 
 
+// draw weather charts using changed url
  function drawChart(x) {
       try {
         google.charts.load('current', {packages: ['corechart']});
@@ -199,6 +173,7 @@ function change_url(x){
         fetch("/index/"+ x).then(response => {
         return response.json(); }).then(data => {
 
+        // push the rain and time values to display array
         var array = [];
         var Header= ['Time', 'Rain Index'];
         array.push(Header);
@@ -208,6 +183,7 @@ function change_url(x){
             array.push(temp);
              })
 
+            // set options for the chart display
            var options = {
           title: 'Rain Index for Station ' + x,
           vAxis: {title: 'mm',  titleTextStyle: {color: '#333'},
@@ -220,11 +196,13 @@ function change_url(x){
           chart_div.draw(chart, options)
 
           }
+          // catch errors in charts cannot be loaded
           catch {
           document.getElementById('columnchart_values').innerHTML = '<h3>The weather charts cannot be loaded at this time</h3>';
           document.getElementById("columnchart_values").style.display = "block";
           window.history.replaceState('page2', 'Title', "/index");}
 
+        // catch errror if invalid response returned from json
            }).catch(err => {
         console.log(err);
         document.getElementById('columnchart_values').innerHTML = '<h3>The weather charts for'+
@@ -233,32 +211,41 @@ function change_url(x){
         document.getElementById("columnchart_values").style.display = "block";
 
     })
+        // display chart and call bike chart with same url
         document.getElementById("columnchart_values").style.display = "block";
         window.history.replaceState('page2', 'Title', "/index")
         url = "/index/" + x + "/chart"
         draw_avg_bikes(x)
         window.history.pushState('page2', 'Title', url);
         }
+
+        // catch all errors in external function and restore url
         catch(err) {
         console.log(err)
         document.getElementById('columnchart_values').innerHTML = '<h3>The weather charts for' +
           'station ' + x + ' cannot be loaded at this time</h3>';
         document.getElementById("columnchart_values").style.display = "block";
+        window.history.replaceState('page2', 'Title', "/index")
         }
      }
+
+// charts for average bikes in given station
 function draw_avg_bikes(x) {
+        // change url and get response
     fetch("/index/"+ x + "/chart").then(response => {
         return response.json(); }).then(data3 => {
 
         var array = [];
         var Header= ['Time', 'Avg Bikes'];
         array.push(Header);
+        // push values to array
         data3.forEach(hour => {
         var temp=[];
             temp.push(hour.T, parseFloat(hour.avg));
             array.push(temp);
              })
 
+        // restore urk
          window.history.replaceState('page2', 'Title', "/index");
            var options = {
           title: 'Average Bikes per hour for Station ' + x,
@@ -266,10 +253,12 @@ function draw_avg_bikes(x) {
           vAxis: {title: 'Bikes Available',  titleTextStyle: {color: '#333'},
           ticks: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32]}
         };
+        // display chart
         var chart = google.visualization.arrayToDataTable(array)
          var chart_div = new google.visualization.ColumnChart(document.getElementById("bike_values"));
           chart_div.draw(chart, options)
-        }).catch(err => {
+
+        }).catch(err => { //catch errors
         console.log(err);
         document.getElementById('bike_values').innerHTML = '<h3>The bike charts for'+
          ' station ' + x + ' cannot be loaded at this time</h3>';
@@ -277,25 +266,31 @@ function draw_avg_bikes(x) {
         document.getElementById("bike_values").style.display = "block";
         })
 
-
+            // display chart
             document.getElementById("bike_values").style.display = "block";
 }
 
+// zooms on station when coming from individual station page
 function station_zoom(){
+        // read local storage from session
         var longcoords = localStorage.getItem("coord");
         var latcoords = localStorage.getItem("coord2");
         console.log(longcoords, latcoords)
 
+
+        // if opening for first time - is null so return
         if (longcoords == null){
         return }
 
+        // else set map to zoom on the given co-ords
         else    {
         var myOptions = {
         center: { lat: parseFloat(latcoords), lng: parseFloat(longcoords)},
-        zoom : 70
+        zoom : 50
         };
         map.setOptions(myOptions);
         }
+        // clear the storage
         window.localStorage.clear();
         window.history.replaceState('page2', 'Title', "/index");
 }
