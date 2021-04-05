@@ -144,7 +144,12 @@ function change_url(x){
      }
      else {
         m = ":00"}
-    current_time = h.toString() + m + ":00"
+    if (h<10){
+        current_time = "0" + h.toString() + m + ":00"
+        }
+    else    {
+        current_time = h.toString() + m + ":00"
+    }
 
 
             var weather_output = "<table>";
