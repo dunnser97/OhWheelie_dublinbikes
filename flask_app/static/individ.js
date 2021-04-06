@@ -1,4 +1,5 @@
 function Temperature() {
+          localStorage.setItem('weather_function', 'temp');
             fetch("/allstations/"+ x +"/temp").then(response => {
                 return response.json(); }).then(data => {
                     var array_temp = [];
@@ -29,6 +30,7 @@ function Temperature() {
 
 
  function percipitation() {
+            localStorage.setItem('weather_function', 'rain');
             google.charts.load('current', {packages: ['corechart']});
             fetch("/index/"+ x).then(response => {
                 return response.json(); }).then(data => {
@@ -57,6 +59,8 @@ function Temperature() {
          })
         }
 function draw_avg_bikes() {
+            localStorage.setItem('bike_function', 'time');
+
             fetch("/index/"+ x + "/chart").then(response => {
                 return response.json(); }).then(data3 => {
                     var array = [];
@@ -85,6 +89,7 @@ function draw_avg_bikes() {
         }
 
 function avg_bikes_day() {
+            localStorage.setItem('bike_function', 'day');
             fetch("/allstations/"+ x + "/avg_bikes_day").then(response => {
                 return response.json(); }).then(data4 => {
                     var array = [];
@@ -164,3 +169,26 @@ function timechange()   {
 Temperature()
 draw_avg_bikes()
 timechange()
+
+window.onresize = resize_charts;
+
+function resize_charts(){
+    var weather_chart = localStorage.getItem('weather_function');
+    var bike_chart = localStorage.getItem('bike_function');
+
+    if (weather_chart == null){
+            return}
+    else if (weather_chart == 'temp'){
+    Temperature()}
+    else if (weather_chart == 'rain'){
+    percipitation() }
+
+
+    console.log(bike_chart)
+    if (bike_chart == null){
+            return}
+    else if (bike_chart == 'time'){
+    draw_avg_bikes()
+    }
+    else if (bike_chart == 'day')
+    avg_bikes_day() }

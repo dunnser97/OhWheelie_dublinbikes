@@ -231,8 +231,9 @@ function change_url(x){
 
 // charts for average bikes in given station
 function draw_avg_bikes(x) {
+        localStorage.setItem('station', x);
         // change url and get response
-    fetch("/index/"+ x + "/chart").then(response => {
+        fetch("/index/"+ x + "/chart").then(response => {
         return response.json(); }).then(data3 => {
 
         var array = [];
@@ -293,4 +294,15 @@ function station_zoom(){
         // clear the storage
         window.localStorage.clear();
         window.history.replaceState('page2', 'Title', "/index");
+}
+
+window.onresize = resize_charts;
+
+function resize_charts(){
+    var stat = localStorage.getItem('station')
+    if( stat == null) {
+    return }
+    else {
+    draw_avg_bikes(stat)
+    drawChart(stat)}
 }
