@@ -19,6 +19,8 @@ def hello():
 
 @app.route("/index/<int:station_id>")
 def weather(station_id):
+    """Returns individual stations to html"""
+
     engine = create_engine(dbinfo.engine)
     bike_engine = create_engine(dbinfo.bike_engine)
     x = station_num(bike_engine, station_id)
@@ -31,6 +33,7 @@ def weather(station_id):
 
 @app.route("/index/<int:station_id>/chart")
 def avg_bike_data(station_id):
+    """Returns avg bikes for individual station to html"""
     engine = create_engine(dbinfo.engine)
     #Selects average bikes where bikes are put within their interval period split by hour.
     row_query = "select FLOOR(AVG(available_bikes)) as avg,  date_format(DATE_ADD(bikes.time, interval 30 minute), '%H:00:00') as T " \
