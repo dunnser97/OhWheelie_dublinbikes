@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import pandas as pd
 from sqlalchemy import create_engine
 import dbinfo
@@ -80,25 +80,44 @@ def stations():
         # print(df.head(3).to_json(orient="records"))
         return df.to_json(orient="records")
 
-@app.route("/allstations/<int:station_id>")
-@cache.cached(timeout=600)
+@app.route("/allstations/<int:station_id>", methods = ['Get','POST'])
+#@cache.cached(timeout=600)
 def station(station_id):
 
     """Returns individual stations html"""
 
-    #Intialises database for bikes and weather
-    engine = create_engine(dbinfo.engine)
-    bike_engine = create_engine(dbinfo.bike_engine)
-    #calls station_num function returning all info bikes database
-    x = station_num(bike_engine, station_id)
-    #Extracts longitude and latitude to feed to station_weather function
-    lat = x["latitude"]
-    long = x["longitude"]
-    if x.shape[0] == 0:
-        return "<h1>Error 404 - Page Not Found</h1>"
-    # calls station_weather function returning all info weather database with longitude and latitude from above
-    y = station_weather(engine, lat, long)
-    return render_template("stations_individual.html", indiv_stat=x, weather_data=y)
+    if request.method == 'POST':
+        user = request.form.get("times")
+        # Intialises database for bikes and weather
+        engine = create_engine(dbinfo.engine)
+        bike_engine = create_engine(dbinfo.bike_engine)
+        # calls station_num function returning all info bikes database
+        x = station_num(bike_engine, station_id)
+        # Extracts longitude and latitude to feed to station_weather function
+        lat = x["latitude"]
+        long = x["longitude"]
+        if x.shape[0] == 0:
+            return "<h1>Error 404 - Page Not Found</h1>"
+        # calls station_weather function returning all info weather database with longitude and latitude from above
+        y = station_weather(engine, lat, long)
+        user = request.form.get("times")
+        print(user)
+        return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=user)
+    else:
+        # Intialises database for bikes and weather
+        engine = create_engine(dbinfo.engine)
+        bike_engine = create_engine(dbinfo.bike_engine)
+        # calls station_num function returning all info bikes database
+        x = station_num(bike_engine, station_id)
+        # Extracts longitude and latitude to feed to station_weather function
+        lat = x["latitude"]
+        long = x["longitude"]
+        if x.shape[0] == 0:
+            return "<h1>Error 404 - Page Not Found</h1>"
+        # calls station_weather function returning all info weather database with longitude and latitude from above
+        y = station_weather(engine, lat, long)
+        print("here")
+        return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user="")
 
 @app.route("/allstations")
 def allstations():
@@ -191,8 +210,15 @@ def avg_bikes_day(station_id):
     #Renames numbers as the day each represents for graphical representation.
     day_avg_db["day"].replace({0:"Monday",1:"Tueday", 2:"Wednesday", 3:"Thursday", 4:"Friday", 5:"Saturday", 6:"Sunday"}, inplace=True)
     return day_avg_db.to_json(orient="records")
-
-
+"""
+@app.route("/allstations/<int:station_id>", methods =['POST'])
+def predictive_bike(station_id):
+    if request.method == 'POST':
+        user = request.form.get("times")
+        print(user)
+        return user
+    return
+"""
 @app.errorhandler(404)
 def page_not_found(e):
     return "<h1>Error 404 - Page Not Found</h1>"

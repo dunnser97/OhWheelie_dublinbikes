@@ -1,21 +1,29 @@
 function Temperature() {
+            //Function retrieves json object from /allstations/station_num/temp route on flask
+            //Then Parsed through and the temperature forecast is then returned as a line chart
           localStorage.setItem('weather_function', 'temp');
             fetch("/allstations/"+ x +"/temp").then(response => {
                 return response.json(); }).then(data => {
+                    //intialise the array
                     var array_temp = [];
+                    //Intialise the headers that are wanted and push to intialised array
                     var Header = ['Time', 'Temperature']
                     array_temp.push(Header);
                     data.forEach(hour => {
+                    //intialise the array for data
                     var temp_hour=[];
+                    //loop over clock time and temperature values  and then push to array_temp
                     temp_hour.push(hour.clock_time, parseFloat(hour.temp_val));
                     array_temp.push(temp_hour);
                 })
                 var options = {
                 title: 'Temperature at Station ' + x,
                 vAxis: {title: 'Degrees Celsius - \u00B0C',  titleTextStyle: {color: '#333'},
+                 //y-axis ticks for the graph
                 ticks: [-5, -2.5, 0, 2.5, 5, 7.5, 10, 12.50, 15, 17.5]
             }
         };
+        //Use google charts to represent header and data saved in array_temp
         var chart = google.visualization.arrayToDataTable(array_temp)
 
         var chart_div = new google.visualization.LineChart(document.getElementById("Weather_chart"));
@@ -30,6 +38,8 @@ function Temperature() {
 
 
  function percipitation() {
+            //Function retrieves json object from /index/station_number on flask
+            //Then Parsed through and the temperature forecast is then returned as a line chart
             localStorage.setItem('weather_function', 'rain');
             google.charts.load('current', {packages: ['corechart']});
             fetch("/index/"+ x).then(response => {
@@ -135,32 +145,32 @@ function timechange()   {
             if (m===":30")  {
                 current_time = i.toString() + m + ":00"
                 test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
-                var temp = i+1;
-                var min_temp = ":00";
-                current_time = temp.toString() + min_temp + ":00"
-                test.innerHTML = test.innerHTML + '<option value="' + ((temp*60)) + '">' + current_time + '</option>';
+                //var temp = i+1;
+                //var min_temp = ":00";
+                //current_time = temp.toString() + min_temp + ":00"
+                //test.innerHTML = test.innerHTML + '<option value="' + ((temp*60)) + '">' + current_time + '</option>';
             }
             else {
                 current_time = i.toString() + m + ":00"
                 test.innerHTML = test.innerHTML + '<option value="' + ((i*60)) + '">' + current_time + '</option>';
-                current_time = i.toString() + ":30:00"
-                test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
+                //current_time = i.toString() + ":30:00"
+                //test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
             }
         }
         for (i=0; i<h; i++)    {
             if (m===":30")  {
                 current_time = i.toString() + m + ":00"
                 test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
-                var temp = i+1;
-                var min_temp = ":00";
-                current_time = temp.toString() + min_temp + ":00"
-                test.innerHTML = test.innerHTML + '<option value="' + ((temp*60)) + '">' + current_time + '</option>';
+                //var temp = i+1;
+                //var min_temp = ":00";
+                //current_time = temp.toString() + min_temp + ":00"
+                //test.innerHTML = test.innerHTML + '<option value="' + ((temp*60)) + '">' + current_time + '</option>';
             }
             else {
                 current_time = i.toString() + m + ":00"
                 test.innerHTML = test.innerHTML + '<option value="' + ((i*60)) + '">' + current_time + '</option>';
-                current_time = i.toString() + ":30:00"
-                test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
+                //current_time = i.toString() + ":30:00"
+                //test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
             }
 
         }
