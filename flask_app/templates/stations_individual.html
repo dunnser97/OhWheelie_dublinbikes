@@ -59,6 +59,9 @@
                 <div id = 'bike_values'></div>
             </div>
         </div>
+        <select id="times" onload="timechange()">
+            <option value= -1 selected>Times</option>
+        </select>
         <script>
         var x ='{{ indiv_stat.Station_number[0] }}';
         var long = '{{indiv_stat.longitude[0]}}';
