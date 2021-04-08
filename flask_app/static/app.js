@@ -13,12 +13,12 @@ function initMap(){
     zoom: 14,
   });
 
-// Check if station zoom if coming from individual station page
+// Check if station zoom needed if coming from individual station page
 station_zoom()
 // add legend to map
 add_legend()
 
-//add markers and appropriate icons
+//add markers and appropriate icons according to bike availability
 data.forEach(station => {
         if (parseInt(station.available_bikes) < 1){
         var myIcon = ('http://maps.google.com/mapfiles/ms/icons/blue-dot.png')
@@ -33,11 +33,12 @@ data.forEach(station => {
         else {
         var myIcon = ('http://maps.google.com/mapfiles/ms/icons/green-dot.png')}
 
-            const marker = new google.maps.Marker({
+        const marker = new google.maps.Marker({
                 position: {lat: parseFloat(station.latitude), lng: parseFloat(station.longitude)},
                 icon: myIcon,
                 map: map,
             });
+            // add markers with station details and onclick to show charts
             marker.addListener("click", () => {
                 const infowindow = new google.maps.InfoWindow({
                     content: '<h4>' + station.address + '</h4><br><h5>' + station.available_bikes + ' Bikes Available' + '</h5><br><h5>' +
@@ -61,9 +62,7 @@ data.forEach(station => {
 
 // add legend with google map png files
 function add_legend(){
-
       const legend = document.getElementById("legend");
-
         const icons = {
       green: {
         name: "More than 10 Free bikes",
@@ -95,7 +94,7 @@ function add_legend(){
         document.getElementById("legend").style.display = "block";
 }
 
-// change url according to station to get weather
+// change url path according to station to get weather
 function change_url(x){
         // loading div in case of slow loading
        document.getElementById('weather_map').innerHTML = 'Getting weather data...';
@@ -126,8 +125,6 @@ function change_url(x){
     else    {
         current_time = h.toString() + m + ":00"
     }
-
-
             var weather_output = "<table>";
             weather_output += "<tr><th>Current Weather</th><th>Weather for:</th>"
             + "<th>Rain Index</th><th>Temperature</th><th>Cloud % Coverage</th></tr>";
@@ -159,14 +156,14 @@ function change_url(x){
        map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
        map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(weather_mp)
        document.getElementById("weather_map").style.display = "block"; })
-
-      window.history.replaceState('page2', 'Title', "/index");
+      restore_url();
 }
 
 
 // draw weather charts using changed url
  function drawChart(x) {
       try {
+      // load google charts
         google.charts.load('current', {packages: ['corechart']});
         url = "/index/" + x
         window.history.pushState('page2', 'Title', url);
@@ -196,28 +193,26 @@ function change_url(x){
           chart_div.draw(chart, options)
 
           }
-          // catch errors in charts cannot be loaded
+          // catch errors if charts cannot be loaded
           catch {
           document.getElementById('columnchart_values').innerHTML = '<h3>The weather charts cannot be loaded at this time</h3>';
           document.getElementById("columnchart_values").style.display = "block";
-          window.history.replaceState('page2', 'Title', "/index");}
+          restore_url()
+          }
 
         // catch errror if invalid response returned from json
            }).catch(err => {
         console.log(err);
         document.getElementById('columnchart_values').innerHTML = '<h3>The weather charts for'+
          ' station ' + x + ' cannot be loaded at this time</h3>';
-         window.history.replaceState('page2', 'Title', "/index")
+         restore_url()
         document.getElementById("columnchart_values").style.display = "block";
 
     })
-        // display chart and call bike chart with same url
+        // display chart
         document.getElementById("columnchart_values").style.display = "block";
-        window.history.replaceState('page2', 'Title', "/index")
-        url = "/index/" + x + "/chart"
-        draw_avg_bikes(x)
-        window.history.pushState('page2', 'Title', url);
-        }
+        restore_url();
+       }
 
         // catch all errors in external function and restore url
         catch(err) {
@@ -225,7 +220,7 @@ function change_url(x){
         document.getElementById('columnchart_values').innerHTML = '<h3>The weather charts for' +
           'station ' + x + ' cannot be loaded at this time</h3>';
         document.getElementById("columnchart_values").style.display = "block";
-        window.history.replaceState('page2', 'Title', "/index")
+        restore_url()
         }
      }
 
@@ -246,8 +241,8 @@ function draw_avg_bikes(x) {
             array.push(temp);
              })
 
-        // restore urk
-         window.history.replaceState('page2', 'Title', "/index");
+        // restore url
+         restore_url();
            var options = {
           title: 'Average Bikes per hour for Station ' + x,
           color: ['#e0440e', '#e6693e', '#ec8f6e', '#f3b49f', '#f6c7b6'],
@@ -263,21 +258,24 @@ function draw_avg_bikes(x) {
         console.log(err);
         document.getElementById('bike_values').innerHTML = '<h3>The bike charts for'+
          ' station ' + x + ' cannot be loaded at this time</h3>';
-         window.history.replaceState('page2', 'Title', "/index")
+         restore_url();
         document.getElementById("bike_values").style.display = "block";
         })
-
             // display chart
             document.getElementById("bike_values").style.display = "block";
 }
 
+// function to restore index url to access different url paths in flask
+function restore_url(){
+    window.history.replaceState('page2', 'Title', "/index")
+}
+
+
 // zooms on station when coming from individual station page
 function station_zoom(){
-        // read local storage from session
+        // read local storage from session (see individual station page
         var longcoords = localStorage.getItem("coord");
         var latcoords = localStorage.getItem("coord2");
-        console.log(longcoords, latcoords)
-
 
         // if opening for first time - is null so return
         if (longcoords == null){
@@ -293,11 +291,11 @@ function station_zoom(){
         }
         // clear the storage
         window.localStorage.clear();
-        window.history.replaceState('page2', 'Title', "/index");
 }
 
-window.onresize = resize_charts;
 
+// make charts responsive to window size
+window.onresize = resize_charts;
 function resize_charts(){
     var stat = localStorage.getItem('station')
     if( stat == null) {
