@@ -132,47 +132,24 @@ function timechange()   {
         var h = today.getHours();
         var m = today.getMinutes();
         var test = document.getElementById("times");
-        if (m<16 || m > 45)  {
-            if (m > 45) {
-                h+=1;
-            }
+        if (m>30)  {
+            h+=1;
             m = ":00";
         }
-        else if (m > 15 || m < 46)   {
-            m = ":30";
+        else if (m < 31)   {
+            m = ":00";
         }
         for (i=h; i<24; i++)    {
-            if (m===":30")  {
-                current_time = i.toString() + m + ":00"
-                test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
-                //var temp = i+1;
-                //var min_temp = ":00";
-                //current_time = temp.toString() + min_temp + ":00"
-                //test.innerHTML = test.innerHTML + '<option value="' + ((temp*60)) + '">' + current_time + '</option>';
-            }
-            else {
-                current_time = i.toString() + m + ":00"
-                test.innerHTML = test.innerHTML + '<option value="' + ((i*60)) + '">' + current_time + '</option>';
-                //current_time = i.toString() + ":30:00"
-                //test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
-            }
+            current_time = i.toString() + m + ":00"
+            test.innerHTML = test.innerHTML + '<option value="' + i + '">' + current_time + '</option>';
+            //current_time = i.toString() + ":30:00"
+            //test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
         }
-        for (i=0; i<h; i++)    {
-            if (m===":30")  {
-                current_time = i.toString() + m + ":00"
-                test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
-                //var temp = i+1;
-                //var min_temp = ":00";
-                //current_time = temp.toString() + min_temp + ":00"
-                //test.innerHTML = test.innerHTML + '<option value="' + ((temp*60)) + '">' + current_time + '</option>';
-            }
-            else {
-                current_time = i.toString() + m + ":00"
-                test.innerHTML = test.innerHTML + '<option value="' + ((i*60)) + '">' + current_time + '</option>';
-                //current_time = i.toString() + ":30:00"
-                //test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
-            }
-
+        for (i=5; i<h; i++)    {
+            current_time = i.toString() + m + ":00"
+            test.innerHTML = test.innerHTML + '<option value="' + i + '">' + current_time + '</option>';
+            //current_time = i.toString() + ":30:00"
+            //test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
         }
                 console.log(h);
 }
