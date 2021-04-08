@@ -96,13 +96,6 @@ function add_legend(){
 
 // change url path according to station to get weather
 function change_url(x){
-        // loading div in case of slow loading
-       document.getElementById('weather_map').innerHTML = 'Getting weather data...';
-       weather_mp = document.getElementById('weather_map')
-       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
-       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(weather_mp)
-       document.getElementById("weather_map").style.display = "block";
-
         // change url and get response
        url = "/index/" + x
         window.history.pushState('page2', 'Title', url);
@@ -146,6 +139,8 @@ function change_url(x){
             map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
             map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(weather_mp)
             document.getElementById('weather_map').innerHTML = weather_output;
+            document.getElementById("weather_map").style.display = "block";
+
 
             // else catch the error and restore url
         }).catch(err => {
@@ -220,8 +215,10 @@ function change_url(x){
         document.getElementById('columnchart_values').innerHTML = '<h3>The weather charts for' +
           'station ' + x + ' cannot be loaded at this time</h3>';
         document.getElementById("columnchart_values").style.display = "block";
-        restore_url()
+        restore_url();
         }
+        draw_avg_bikes(x)
+        link_to_station(x)
      }
 
 // charts for average bikes in given station
@@ -285,7 +282,7 @@ function station_zoom(){
         else    {
         var myOptions = {
         center: { lat: parseFloat(latcoords), lng: parseFloat(longcoords)},
-        zoom : 50
+        zoom : 20
         };
         map.setOptions(myOptions);
         }
@@ -293,6 +290,21 @@ function station_zoom(){
         window.localStorage.clear();
 }
 
+function link_to_station(x){
+    map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
+    var btn = document.createElement("BUTTON");
+    btn.id = 'button1';
+    btn.value = x
+    btn.setAttribute('onClick', "go_to_station(this.value)");
+    btn.innerHTML = "See Station Analysis";
+    document.body.appendChild(btn);
+    map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(btn);
+}
+
+// Goes to individual station page
+function go_to_station(x){
+        window.location.href = 'allstations/' + x;
+        }
 
 // make charts responsive to window size
 window.onresize = resize_charts;

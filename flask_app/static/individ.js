@@ -171,7 +171,6 @@ function resize_charts(){
     percipitation() }
 
 
-    console.log(bike_chart)
     if (bike_chart == null){
             return}
     else if (bike_chart == 'time'){

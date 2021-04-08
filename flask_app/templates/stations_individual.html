@@ -36,7 +36,7 @@
                     <th>{{ indiv_stat.status[0] }}</th>
                     <th>{{ weather_data.weather_symbol[0] }} <br> {{weather_data.temp_val[0]}}<span>&#176;</span>C <br> {{weather_data.rain_val[0]}}mm</th>
                     <th><img src="/static/images/{{weather_data.weather_symbol[0]}}.png"></th>
-                    <th><a href="/"><img src={{url_for('static', filename='marker.png')}}></a></th>
+                    <th><a onclick='save_zoom()' href="/"><img src={{url_for('static', filename='marker.png')}}></a></th>
                 </tr>
             </table>
         <div class="graph">
@@ -82,8 +82,11 @@
         var x ='{{ indiv_stat.Station_number[0] }}';
         var long = '{{indiv_stat.longitude[0]}}';
         var lat = '{{indiv_stat.latitude[0]}}';
+
+        function save_zoom(){
         localStorage.setItem("coord", long);
         localStorage.setItem("coord2", lat);
+        }
 
         var d = '{{indiv_stat.time[0]}}';
         d = '{{indiv_stat.date[0]}} ' + d.split(' ')[2];
