@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import pandas as pd
 from sqlalchemy import create_engine
 import dbinfo
+import numpy as np
 from flask_caching import Cache
 import datetime
 
@@ -80,14 +81,14 @@ def stations():
         # print(df.head(3).to_json(orient="records"))
         return df.to_json(orient="records")
 
-@app.route("/allstations/<int:station_id>", methods = ['Get','POST'])
+@app.route("/allstations/<int:station_id>", methods = ['GET','POST'])
 #@cache.cached(timeout=600)
 def station(station_id):
 
     """Returns individual stations html"""
 
     if request.method == 'POST':
-        user = request.form.get("times")
+        time_from_midnight = request.form.get("times")
         # Intialises database for bikes and weather
         engine = create_engine(dbinfo.engine)
         bike_engine = create_engine(dbinfo.bike_engine)
@@ -100,9 +101,33 @@ def station(station_id):
             return "<h1>Error 404 - Page Not Found</h1>"
         # calls station_weather function returning all info weather database with longitude and latitude from above
         y = station_weather(engine, lat, long)
-        user = request.form.get("times")
-        print(user)
-        return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=user)
+        test = y[y["clock_time"] == time_from_midnight + ":00:00"]
+        time = int(time_from_midnight) * 60
+        print(time)
+        temp_val = test["temp_val"].values[0]
+        rain_val = test["rain_val"].values[0]
+        wind_val = test["wind_val"].values[0]
+        mon = tue = wed = thur = fri = sat = sun = 0
+        if (test["day"].values[0]) ==0:
+            mon=1
+        elif ((test["day"].values[0]) ==1):
+            tue = 1
+        elif ((test["day"].values[0]) ==2):
+            wed = 1
+        elif ((test["day"].values[0]) ==3):
+            thur = 1
+        elif ((test["day"].values[0]) ==4):
+            fri = 1
+        elif ((test["day"].values[0]) ==5):
+            sat = 1
+        elif ((test["day"].values[0]) ==6):
+            sun = 1
+        test_arr = np.array([time, temp_val, rain_val, wind_val, pow(int(time),2), pow(temp_val,2), pow(rain_val,2), pow(wind_val,2),
+             pow(int(time),3), pow(temp_val,3), pow(rain_val,3), pow(wind_val,3), fri, mon, sat, sun, thur, tue, wed]).reshape(1,-1)
+        print(thur)
+        #loaded_model = joblib.load(x["Station_num"] + ".model.sav")
+        #result = loaded_model.predict(test_arr)
+        return render_template("stations_individual.html", indiv_stat=x, weather_data=y)
     else:
         # Intialises database for bikes and weather
         engine = create_engine(dbinfo.engine)
@@ -117,7 +142,7 @@ def station(station_id):
         # calls station_weather function returning all info weather database with longitude and latitude from above
         y = station_weather(engine, lat, long)
         print("here")
-        return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user="")
+        return render_template("stations_individual.html", indiv_stat=x, weather_data=y, time_from_midnight="")
 
 @app.route("/allstations")
 def allstations():
@@ -158,15 +183,16 @@ def station_weather(engine, lat, long):
     if (month > 3 and month < 11) or (month == 3 and date_2 > 27) or (month == 10 and date_2 > 31):
         #Selects columns from weather forecast where latitude and longitude are given as inputs into the function and grouped by time
         row_query_1 = " select date, ADDTIME(clock_time, '1:00:00') as clock_time , latitude, longitude, temp_val, " \
-                      "humidity_val, cloudi_val, rain_val, wind_val, weather_symbol " \
+                      "humidity_val, cloudi_val, rain_val, wind_val, weather_symbol, weekday(date) as day  " \
                       "from weather_forecast " \
-                      "where latitude = " + str(format(lat[0])) + "and longitude = " + str(format(long[0])) + \
-                      "group by clock_time"
+                      "where latitude = " + str(format(lat[0])) + " and longitude = " + str(format(long[0])) + \
+                      " group by clock_time"
         y = pd.read_sql_query(row_query_1, engine)
         return y
     else:
-        row_query_1 = "select * from weather_forecast where latitude = " + str(format(lat[0])) + "and longitude = " + str(
-            format(long[0])) + "group by clock_time"
+        row_query_1 = "select date, ADDTIME(clock_time, '1:00:00') as clock_time , latitude, longitude, temp_val, " \
+                      "humidity_val, cloudi_val, rain_val, wind_val, weather_symbol, weekday(date) as day  " \
+                      "from weather_forecast where latitude = " + str(format(lat[0])) + " and longitude = " + str(format(long[0])) + " group by clock_time"
         y = pd.read_sql_query(row_query_1, engine)
         return y
 
