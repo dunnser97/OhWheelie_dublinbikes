@@ -14,9 +14,6 @@
                 <li><a href="/about">About</a></li>
             </ul>
         </div>
-
-
-        <div id="basic_info">
             <table><th><h1>{{ indiv_stat.address[0] }}</h1></th> </table>
 
             <table>
@@ -42,7 +39,6 @@
                     <th><a href="/"><img src={{url_for('static', filename='marker.png')}}></a></th>
                 </tr>
             </table>
-        </div>
         <div class="graph">
         <button  id="Temperature" onclick="Temperature()">Temperature</button>
         <button  id="Percipitation" onclick="percipitation()">Rainfall</button>
@@ -59,14 +55,28 @@
                 <div id = 'bike_values'></div>
             </div>
         </div>
-        <table><th><h1>Predicted Bike Availability
+        <div id="basic_info">
+        <table><tr><th><h1>Predicted Bike Availability
         <form method="POST">
         <select class="form-control" name="times" id="times" onload="timechange()">
             <option value= -1 selected>Times</option>
         </select>
         <input type="submit">
         </form>
-        </h1></th> </table>
+        </h1></th></tr></table>
+            <table>
+        <tr>
+        <th>Available Bikes</th>
+                    <th>Available Bike Stands</th>
+                    <th>Time of Bike availability</th>
+            </tr>
+            <tr>
+                <th>{{user}}</th>
+                <th>{{user}}</th>
+                <th>{{user}}</th>
+            </tr>
+        </table>
+        </div>
         <div>{{user}}</div>
         <script>
         var x ='{{ indiv_stat.Station_number[0] }}';
