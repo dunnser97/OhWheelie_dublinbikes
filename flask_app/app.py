@@ -15,15 +15,18 @@ app.config['CACHE_TYPE'] = 'simple'
 cache.init_app(app)
 
 def distance(lat1, lon1, lat2, lon2):
+    """Returns distance between two co-ords"""
     p = 0.017453292519943295
     a = 0.5 - cos((lat2-lat1)*p)/2 + cos(lat1*p)*cos(lat2*p) * (1-cos((lon2-lon1)*p)) / 2
     return 12742 * asin(sqrt(a))
 
 
 def closest(data, v):
+    """Returns closest from dataset of station to inputted co-ords - v"""
     return min(data, key=lambda p: distance(float(v['latitude']), float(v['longitude']), float(p['latitude']), float(p['longitude'])))
 
 def nearest_stat(x):
+    """Takes address, lat and long oof all stations, generates user co-ords and returns nearest station"""
     dict = x.to_dict('records')
     hard_coded_lat = 53.328764
     hard_coded_lng = -6.271060
@@ -38,7 +41,7 @@ def hello():
 
 @app.route("/index/<int:station_id>")
 def weather(station_id):
-    """Returns individual stations to html"""
+    """Returns individual stations weather to html"""
 
     engine = create_engine(dbinfo.engine)
     bike_engine = create_engine(dbinfo.bike_engine)
@@ -70,6 +73,7 @@ def about():
 @app.route("/stations")
 @cache.cached(timeout=600)
 def stations():
+    """Returns all stations to html accounting for time differences"""
     engine = create_engine(dbinfo.engine, echo=False)
     #Checks current date and passes them as integer values representing month and date
     date = datetime.datetime.now()
@@ -255,6 +259,7 @@ def temperature(station_id):
 
 @app.route("/allstations/<int:station_id>/avg_bikes_day")
 def avg_bikes_day(station_id):
+    """Returns average bikes per day of station as object to html"""
     bike_engine = create_engine(dbinfo.bike_engine)
     #selects avg available bikes floored and the weekday given as an integer where 0 is Monday
     #Only checks bike availability between 6 and 8 as bikes cannot be removed after 12. Thus this interval was chosen for a more meaningful average
