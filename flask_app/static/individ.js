@@ -142,14 +142,32 @@ function timechange()   {
         for (i=h; i<24; i++)    {
             current_time = i.toString() + m + ":00"
             test.innerHTML = test.innerHTML + '<option value="' + i + '">' + current_time + '</option>';
-            //current_time = i.toString() + ":30:00"
-            //test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
+        }
+        for (i=0; i<h; i++)    {
+            current_time = i.toString() + m + ":00"
+            test.innerHTML = test.innerHTML + '<option value="' + i + '">' + current_time + '</option>';
+        }
+                console.log(h);
+}
+function daychange()   {
+        var today = new Date();
+        var h = today.getHours();
+        var m = today.getMinutes();
+        var test = document.getElementById("times");
+        if (m>30)  {
+            h+=1;
+            m = ":00";
+        }
+        else if (m < 31)   {
+            m = ":00";
+        }
+        for (i=h; i<24; i++)    {
+            current_time = i.toString() + m + ":00"
+            test.innerHTML = test.innerHTML + '<option value="' + i + '">' + current_time + '</option>';
         }
         for (i=5; i<h; i++)    {
             current_time = i.toString() + m + ":00"
             test.innerHTML = test.innerHTML + '<option value="' + i + '">' + current_time + '</option>';
-            //current_time = i.toString() + ":30:00"
-            //test.innerHTML = test.innerHTML + '<option value="' + ((i*60)+30) + '">' + current_time + '</option>';
         }
                 console.log(h);
 }
@@ -178,3 +196,18 @@ function resize_charts(){
     }
     else if (bike_chart == 'day')
     avg_bikes_day() }
+/*
+$(document).ready(function(){
+    $('.updateButton').on('click', function() {
+    document.forms[0].days.value;
+        var days = document.getElementbyID("days").value;
+        var time = document.getElementbyID("time").value;
+        console.log(days);
+        req = $.ajax({
+            url : '/allstations/<int:station_id>'
+            type : 'POST'
+            data : { days : days, time :time}
+            });
+    });
+});
+*/

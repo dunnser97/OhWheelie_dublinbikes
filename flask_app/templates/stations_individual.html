@@ -3,6 +3,7 @@
     <head>
         <title>Stations</title>
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script src="https://code.jquery.com/jquery.js"></script>
         <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
     </head>
     <body class="stationspage">
@@ -57,11 +58,21 @@
         </div>
         <div id="basic_info">
         <table><tr><th><h1>Predicted Bike Availability
-        <form method="POST">
-        <select class="form-control" name="times" id="times" onload="timechange()">
+        <form action = "http://localhost:5000/allstations/106" method = "POST">
+            <select name="days" id="days">
+            <option value= -1 selected>Days</option>
+            <option value= 0 >Monday</option>
+            <option value= 1 >Tuesday</option>
+            <option value= 2>Wednesday</option>
+            <option value= 3>Thursday</option>
+            <option value= 4>Friday</option>
+            <option value= 5>Saturday</option>
+            <option value= 6>Sunday</option>
+        </select>
+        <select name="times" id="times" onload="timechange()">
             <option value= -1 selected>Times</option>
         </select>
-        <input type="submit">
+            <input type="submit" class="updatebutton">
         </form>
         </h1></th></tr></table>
             <table>
@@ -71,13 +82,12 @@
                     <th>Time of Bike availability</th>
             </tr>
             <tr>
-                <th>{{user}}</th>
-                <th>{{user}}</th>
-                <th>{{user}}</th>
+                <th>{{user.available_bikes[0]}}</th>
+                <th>{{user.available_bike_stands[0]}}</th>
+                <th>{{user.time[0]}}</th>
             </tr>
         </table>
         </div>
-        <div>{{user}}</div>
         <script>
         var x ='{{ indiv_stat.Station_number[0] }}';
         var long = '{{indiv_stat.longitude[0]}}';

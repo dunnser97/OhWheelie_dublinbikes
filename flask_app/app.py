@@ -1,3 +1,4 @@
+import joblib
 from flask import Flask, render_template, request
 import pandas as pd
 from sqlalchemy import create_engine
@@ -88,7 +89,9 @@ def station(station_id):
     """Returns individual stations html"""
 
     if request.method == 'POST':
+        print("post")
         time_from_midnight = request.form.get("times")
+        day_check = request.form.get("days")
         # Intialises database for bikes and weather
         engine = create_engine(dbinfo.engine)
         bike_engine = create_engine(dbinfo.bike_engine)
@@ -103,31 +106,32 @@ def station(station_id):
         y = station_weather(engine, lat, long)
         test = y[y["clock_time"] == time_from_midnight + ":00:00"]
         time = int(time_from_midnight) * 60
-        print(time)
         temp_val = test["temp_val"].values[0]
         rain_val = test["rain_val"].values[0]
         wind_val = test["wind_val"].values[0]
         mon = tue = wed = thur = fri = sat = sun = 0
-        if (test["day"].values[0]) ==0:
+        day_check = int(day_check)
+        if (day_check) ==0:
             mon=1
-        elif ((test["day"].values[0]) ==1):
+        elif (day_check ==1):
             tue = 1
-        elif ((test["day"].values[0]) ==2):
+        elif (day_check ==2):
             wed = 1
-        elif ((test["day"].values[0]) ==3):
+        elif (day_check ==3):
             thur = 1
-        elif ((test["day"].values[0]) ==4):
+        elif (day_check ==4):
             fri = 1
-        elif ((test["day"].values[0]) ==5):
+        elif (day_check ==5):
             sat = 1
-        elif ((test["day"].values[0]) ==6):
+        elif (day_check ==6):
             sun = 1
-        test_arr = np.array([time, temp_val, rain_val, wind_val, pow(int(time),2), pow(temp_val,2), pow(rain_val,2), pow(wind_val,2),
-             pow(int(time),3), pow(temp_val,3), pow(rain_val,3), pow(wind_val,3), fri, mon, sat, sun, thur, tue, wed]).reshape(1,-1)
-        print(thur)
-        #loaded_model = joblib.load(x["Station_num"] + ".model.sav")
-        #result = loaded_model.predict(test_arr)
-        return render_template("stations_individual.html", indiv_stat=x, weather_data=y)
+        test_arr = np.array([time/1439, temp_val/30, rain_val/2, wind_val/20, pow(int(time),2)/(1439 ** 2), pow(temp_val,2)/(30 ** 2), pow(rain_val,2)/(2 ** 2), pow(wind_val,2)/(20 ** 2),
+             pow(int(time),3)/(1439 ** 3), pow(temp_val,3)/(30 ** 3), pow(rain_val,3)/(2 ** 3), pow(wind_val,3)/(20 ** 3), fri, mon, sat, sun, thur, tue, wed]).reshape(1,-1)
+        loaded_model = joblib.load(str(x["Station_number"][0]) + ".sav")
+        avail_bikes = loaded_model.predict(test_arr)
+        avail_bikes = int(avail_bikes[0])
+        result = pd.DataFrame({"available_bikes":[avail_bikes], "available_bike_stands":[(40-avail_bikes)], "time":[(time_from_midnight + ":00:00")]})
+        return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=result)
     else:
         # Intialises database for bikes and weather
         engine = create_engine(dbinfo.engine)
@@ -141,8 +145,7 @@ def station(station_id):
             return "<h1>Error 404 - Page Not Found</h1>"
         # calls station_weather function returning all info weather database with longitude and latitude from above
         y = station_weather(engine, lat, long)
-        print("here")
-        return render_template("stations_individual.html", indiv_stat=x, weather_data=y, time_from_midnight="")
+        return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=x)
 
 @app.route("/allstations")
 def allstations():
@@ -236,15 +239,8 @@ def avg_bikes_day(station_id):
     #Renames numbers as the day each represents for graphical representation.
     day_avg_db["day"].replace({0:"Monday",1:"Tueday", 2:"Wednesday", 3:"Thursday", 4:"Friday", 5:"Saturday", 6:"Sunday"}, inplace=True)
     return day_avg_db.to_json(orient="records")
-"""
-@app.route("/allstations/<int:station_id>", methods =['POST'])
-def predictive_bike(station_id):
-    if request.method == 'POST':
-        user = request.form.get("times")
-        print(user)
-        return user
-    return
-"""
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return "<h1>Error 404 - Page Not Found</h1>"
