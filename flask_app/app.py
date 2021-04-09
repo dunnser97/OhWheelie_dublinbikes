@@ -5,12 +5,29 @@ import dbinfo
 import numpy as np
 from flask_caching import Cache
 import datetime
+from math import cos, asin, sqrt
 
 cache = Cache()
 app = Flask(__name__, template_folder='templates')
 app.config['CACHE_TYPE'] = 'simple'
 
 cache.init_app(app)
+
+def distance(lat1, lon1, lat2, lon2):
+    p = 0.017453292519943295
+    a = 0.5 - cos((lat2-lat1)*p)/2 + cos(lat1*p)*cos(lat2*p) * (1-cos((lon2-lon1)*p)) / 2
+    return 12742 * asin(sqrt(a))
+
+
+def closest(data, v):
+    return min(data, key=lambda p: distance(float(v['latitude']), float(v['longitude']), float(p['latitude']), float(p['longitude'])))
+
+def nearest_stat(x):
+    dict = x.to_dict('records')
+    hard_coded_lat = 53.328764
+    hard_coded_lng = -6.271060
+    simulated_user_location = {'latitude': hard_coded_lat, 'longitude': hard_coded_lng}
+    return closest(dict, simulated_user_location)
 
 @app.route("/")
 
@@ -52,7 +69,7 @@ def about():
 @app.route("/stations")
 @cache.cached(timeout=600)
 def stations():
-    engine = create_engine(dbinfo.engine, echo=True)
+    engine = create_engine(dbinfo.engine, echo=False)
     #Checks current date and passes them as integer values representing month and date
     date = datetime.datetime.now()
     date_1 = date.strftime("%m")
@@ -69,7 +86,11 @@ def stations():
         df = pd.read_sql_query(row_query, con=engine)
         #Error occurred where time was converting back to integer. Change of type to string solved this.
         df['time'] = df['time'].astype(str)
-        return df.to_json(orient="records")
+        dflatlong = df[['address', 'latitude', 'longitude']]
+
+        nearest = nearest_stat(dflatlong)
+        stations = df.to_json(orient="records")
+        return {'stations': stations, 'nearest': nearest}
 
     #else utc = localtime
     else:
@@ -78,8 +99,12 @@ def stations():
                     "from dbbikes_current_info order by address asc"
         df = pd.read_sql_query(row_query, con=engine)
         df['time'] = df['time'].astype(str)
-        # print(df.head(3).to_json(orient="records"))
-        return df.to_json(orient="records")
+        dflatlong = df[['address', 'latitude', 'longitude']]
+
+        nearest = nearest_stat(dflatlong)
+        stations = df.to_json(orient="records")
+        return {'stations': stations, 'nearest': nearest}
+
 
 @app.route("/allstations/<int:station_id>", methods = ['GET','POST'])
 #@cache.cached(timeout=600)

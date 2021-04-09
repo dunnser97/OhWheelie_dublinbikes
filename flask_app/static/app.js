@@ -18,8 +18,17 @@ station_zoom()
 // add legend to map
 add_legend()
 
+
+for (var key in data){
+    stations = data['stations']
+    stations = JSON.parse(stations)
+    nearest = data['nearest']
+    nearest_address = nearest['address']
+    }
+    console.log(nearest_address)
+
 //add markers and appropriate icons according to bike availability
-data.forEach(station => {
+stations.forEach(station => {
         if (parseInt(station.available_bikes) < 1){
         var myIcon = ('http://maps.google.com/mapfiles/ms/icons/blue-dot.png')
             }
@@ -33,8 +42,14 @@ data.forEach(station => {
         else {
         var myIcon = ('http://maps.google.com/mapfiles/ms/icons/green-dot.png')}
 
+        if (station.address == nearest_address) {
+        var myIcon = ('http://maps.google.com/mapfiles/ms/micons/cycling.png')
+        }
+
+        console.log(station.address)
         const marker = new google.maps.Marker({
                 position: {lat: parseFloat(station.latitude), lng: parseFloat(station.longitude)},
+                animation: google.maps.Animation.DROP,
                 icon: myIcon,
                 map: map,
             });
@@ -80,7 +95,12 @@ function add_legend(){
         name: "No Free bikes",
         icon: ('http://maps.google.com/mapfiles/ms/icons/blue-dot.png'),
       },
+      neareststat: {
+        name: "Your Nearest Station",
+        icon: ('http://maps.google.com/mapfiles/ms/micons/cycling.png'),
+        },
     };
+
         for (const key in icons) {
           const type = icons[key];
           const name = type.name;
