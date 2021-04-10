@@ -64,13 +64,14 @@ upper_bound_date = str(lower_bound_date)[0:8] + str(calendar.monthrange(int(str(
 
 
 def create_df(station_num):
-    
+
     #Fetch initial DataFrame
     engine = create_engine(dbinfo.bike_engine, echo=True)
     row_query = "SELECT available_bike_stands, available_bikes, date, time, latitude, longitude from dbbikes_info WHERE Station_number='" + str(station_num) + "' and date >= '" + lower_bound_date + "' and date <= '" + upper_bound_date + "' order by date;"
     df = pd.read_sql_query(row_query, con=engine)
     df['time'] = df['time'].astype(str)
     df.to_json(orient="records")
+
     
     #Format time correctly
     for column in df[['time']].columns:
@@ -246,9 +247,18 @@ def create_model(df, station_num):
 
 # In[ ]:
 
+fail_counter = 0
+failed_stations = []
 
 for i in station_numbers:
-    df = create_df(i)
-    create_model(df, i)
+    try:
+        df = create_df(i)
+        create_model(df, i)
+    except:
+        print("THIS STATION HAS FAILED!!!" + str(i))
+        fail_counter += 1
+        failed_stations.append(i)
 
 print("FINISHED GENERATING MODELS")
+print("FAILED" + str(fail_counter) + " TIMES")
+print(failed_stations)
