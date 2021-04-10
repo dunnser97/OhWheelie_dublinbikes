@@ -18,12 +18,16 @@ function filterSearch() {
 fetch("/stations").then(response => {
         return response.json();
             }).then(data => {
-                console.log("data: ", data);
+                //console.log("data: ", data);
 
+                for (var key in data){
+                        stations = JSON.parse(data['stations'])
+                    }
+                console.log(stations)
                 results_output = "<table id='resultsTable'>"
                 results_output += "<tr> <th> Station Name </th> <th> Available Bikes </th> <th> Available Stands </th> </tr>"
 
-                data.forEach(station => {
+                stations.forEach(station => {
                     results_output += "<tr class='stname'>";
                     results_output += "<th class='stname'><a href='/allstations/" + station.Station_number + "'>" + station.name + "</a></th>";
                     results_output += "<th>" + station.available_bikes + "</th>";
