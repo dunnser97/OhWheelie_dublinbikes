@@ -114,7 +114,6 @@ def station(station_id):
     """Returns individual stations html"""
 
     if request.method == 'POST':
-        print("post")
         time_from_midnight = request.form.get("times")
         day_check = request.form.get("days")
         # Intialises database for bikes and weather
@@ -131,32 +130,61 @@ def station(station_id):
         y = station_weather(engine, lat, long)
         test = y[y["clock_time"] == time_from_midnight + ":00:00"]
         time = int(time_from_midnight) * 60
-        temp_val = test["temp_val"].values[0]
-        rain_val = test["rain_val"].values[0]
-        wind_val = test["wind_val"].values[0]
-        mon = tue = wed = thur = fri = sat = sun = 0
         day_check = int(day_check)
+        mon = tue = wed = thur = fri = sat = sun = 0
         if (day_check) ==0:
+            day ="Monday"
             mon=1
         elif (day_check ==1):
+            day = "Tuesday"
             tue = 1
         elif (day_check ==2):
+            day = "Wednesday"
             wed = 1
         elif (day_check ==3):
+            day = "Thursday"
             thur = 1
         elif (day_check ==4):
+            day = "Friday"
             fri = 1
         elif (day_check ==5):
+            day = "Saturday"
             sat = 1
         elif (day_check ==6):
+            day = "Sunday"
             sun = 1
-        test_arr = np.array([time/1439, temp_val/30, rain_val/2, wind_val/20, pow(int(time),2)/(1439 ** 2), pow(temp_val,2)/(30 ** 2), pow(rain_val,2)/(2 ** 2), pow(wind_val,2)/(20 ** 2),
-             pow(int(time),3)/(1439 ** 3), pow(temp_val,3)/(30 ** 3), pow(rain_val,3)/(2 ** 3), pow(wind_val,3)/(20 ** 3), fri, mon, sat, sun, thur, tue, wed]).reshape(1,-1)
-        loaded_model = joblib.load(str(x["Station_number"][0]) + ".sav")
-        avail_bikes = loaded_model.predict(test_arr)
-        avail_bikes = int(avail_bikes[0])
-        result = pd.DataFrame({"available_bikes":[avail_bikes], "available_bike_stands":[(40-avail_bikes)], "time":[(time_from_midnight + ":00:00")]})
-        return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=result)
+        time_object = datetime.datetime.now()
+        dt_string = int(time_object.strftime("%H"))
+        date_temp = datetime.datetime.today().weekday()
+        month_temp = datetime.datetime.now()
+        month_temp = int(month_temp.strftime("%m")) -1
+        if date_temp == day_check or (day_check%7 == 1 and dt_string-1 > int(time_from_midnight)):
+            temp_val = test["temp_val"].values[0]
+            rain_val = test["rain_val"].values[0]
+            wind_val = test["wind_val"].values[0]
+            test_arr = np.array([time / 1439, temp_val / 30, rain_val / 2, wind_val / 20, pow(int(time), 2) / (1439 ** 2),pow(temp_val, 2) / (30 ** 2), pow(rain_val, 2) / (2 ** 2), pow(wind_val, 2) / (20 ** 2),pow(int(time), 3) / (1439 ** 3), pow(temp_val, 3) / (30 ** 3), pow(rain_val, 3) / (2 ** 3),pow(wind_val, 3) / (20 ** 3), fri, mon, sat, sun, thur, tue, wed]).reshape(1, -1)
+            loaded_model = joblib.load(str(x["Station_number"][0]) + ".sav")
+            avail_bikes = loaded_model.predict(test_arr)
+            avail_bikes = int(avail_bikes[0])
+            result = pd.DataFrame({"available_bikes": [avail_bikes], "available_bike_stands": [(40 - avail_bikes)],"time": [(day +"\n" + time_from_midnight + ":00:00")]})
+            return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=result)
+        else:
+            avg_day_over = "SELECT AVG(temp_val), AVG(rain_val), AVG(wind_val) " \
+                           "FROM weather_hourDB.weather_history " \
+                           "where weekday(date) = " + str(day_check) +" and month(date) = " + str(month_temp) + ";"
+            avg_day_db = pd.read_sql_query(avg_day_over, engine)
+            temp_val = avg_day_db["AVG(temp_val)"].values[0]
+            rain_val = avg_day_db["AVG(rain_val)"].values[0]
+            wind_val = avg_day_db["AVG(wind_val)"].values[0]
+            test_arr = np.array([time / 1439, temp_val / 30, rain_val / 2, wind_val / 20, pow(int(time), 2) / (1439 ** 2),pow(temp_val, 2) / (30 ** 2), pow(rain_val, 2) / (2 ** 2), pow(wind_val, 2) / (20 ** 2),pow(int(time), 3) / (1439 ** 3), pow(temp_val, 3) / (30 ** 3), pow(rain_val, 3) / (2 ** 3),pow(wind_val, 3) / (20 ** 3), fri, mon, sat, sun, thur, tue, wed]).reshape(1, -1)
+            loaded_model = joblib.load(str(x["Station_number"][0]) + ".sav")
+            avail_bikes = loaded_model.predict(test_arr)
+            avail_bikes = int(avail_bikes[0])
+            result = pd.DataFrame({"available_bikes": [avail_bikes], "available_bike_stands": [(40 - avail_bikes)], "time": [(day + " " +  time_from_midnight + ":00:00")]})
+            return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=result)
+
+
+
     else:
         # Intialises database for bikes and weather
         engine = create_engine(dbinfo.engine)
