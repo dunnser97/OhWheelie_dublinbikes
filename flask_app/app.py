@@ -185,7 +185,7 @@ def station(station_id):
             avail_bikes = loaded_model.predict(test_arr)
             avail_bikes = int(avail_bikes[0])
             # Returns information as a dataframe to be read in HTML
-            result = pd.DataFrame({"available_bikes": [avail_bikes], "available_bike_stands": [(40 - avail_bikes)],"time": [(day +"\n" + time_from_midnight + ":00:00")]})
+            result = pd.DataFrame({"available_bikes": [avail_bikes], "available_bike_stands": [(x.bike_stands[0] - avail_bikes)],"time": [(day +"\n" + time_from_midnight + ":00:00")]})
             return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=result)
 
         #Otherwise it will select the average values for the weather for a day and month previously gone by
@@ -202,7 +202,7 @@ def station(station_id):
             avail_bikes = loaded_model.predict(test_arr)
             avail_bikes = int(avail_bikes[0])
             #Returns information as a dataframe to be read in HTML
-            result = pd.DataFrame({"available_bikes": [avail_bikes], "available_bike_stands": [(40 - avail_bikes)], "time": [(day + " " +  time_from_midnight + ":00:00")]})
+            result = pd.DataFrame({"available_bikes": [avail_bikes], "available_bike_stands": [(x.bike_stands[0] - avail_bikes)], "time": [(day + " " +  time_from_midnight + ":00:00")]})
             return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=result)
 
 
