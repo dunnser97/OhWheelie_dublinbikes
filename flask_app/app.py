@@ -130,6 +130,11 @@ def station(station_id):
                 time_from_midnight =  "0" + str(time_from_midnight)
             else:
                 time_from_midnight = str(time_from_midnight)
+        time_from_midnight = int(time_from_midnight)
+        if time_from_midnight < 10:
+            time_from_midnight = "0" + str(time_from_midnight)
+        else:
+            time_from_midnight = str(time_from_midnight)
         # Intialises database for bikes and weather
         engine = create_engine(dbinfo.engine)
         bike_engine = create_engine(dbinfo.bike_engine)
