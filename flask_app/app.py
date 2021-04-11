@@ -120,6 +120,16 @@ def station(station_id):
     if request.method == 'POST':
         time_from_midnight = request.form.get("times")
         day_check = request.form.get("days")
+        time_object = datetime.datetime.now()
+        #If Either day or time is unselected will give todays day and 1 hour forward
+        if (day_check == "-1"):
+            day_check = datetime.datetime.today().weekday()
+        if (time_from_midnight == "-1"):
+            time_from_midnight = int(time_object.strftime("%H")) + 1
+            if time_from_midnight <10:
+                time_from_midnight =  "0" + str(time_from_midnight)
+            else:
+                time_from_midnight = str(time_from_midnight)
         # Intialises database for bikes and weather
         engine = create_engine(dbinfo.engine)
         bike_engine = create_engine(dbinfo.bike_engine)
@@ -132,8 +142,10 @@ def station(station_id):
             return "<h1>Error 404 - Page Not Found</h1>"
         # calls station_weather function returning all info weather database with longitude and latitude from above
         y = station_weather(engine, lat, long)
-        test = y[y["clock_time"] == time_from_midnight + ":00:00"]
+        predict_db = y[y["clock_time"] == time_from_midnight + ":00:00"]
+        #Changes time to be minutes
         time = int(time_from_midnight) * 60
+        #converts day_check to integer for the below check to see what day is being requested
         day_check = int(day_check)
         mon = tue = wed = thur = fri = sat = sun = 0
         if (day_check) ==0:
@@ -154,28 +166,33 @@ def station(station_id):
         elif (day_check ==5):
             day = "Saturday"
             sat = 1
-        elif (day_check ==6):
+        else:
             day = "Sunday"
             sun = 1
-        time_object = datetime.datetime.now()
+
         dt_string = int(time_object.strftime("%H"))
         date_temp = datetime.datetime.today().weekday()
         month_temp = datetime.datetime.now()
         month_temp = int(month_temp.strftime("%m")) -1
+
+        #Function Checks if day is in the next 24 hours for which forecast information is available and applies it to the predictive model
         if date_temp == day_check or (day_check%7 == 1 and dt_string-1 > int(time_from_midnight)):
-            temp_val = test["temp_val"].values[0]
-            rain_val = test["rain_val"].values[0]
-            wind_val = test["wind_val"].values[0]
+            temp_val = predict_db["temp_val"].values[0]
+            rain_val = predict_db["rain_val"].values[0]
+            wind_val = predict_db["wind_val"].values[0]
             test_arr = np.array([time / 1439, temp_val / 30, rain_val / 2, wind_val / 20, pow(int(time), 2) / (1439 ** 2),pow(temp_val, 2) / (30 ** 2), pow(rain_val, 2) / (2 ** 2), pow(wind_val, 2) / (20 ** 2),pow(int(time), 3) / (1439 ** 3), pow(temp_val, 3) / (30 ** 3), pow(rain_val, 3) / (2 ** 3),pow(wind_val, 3) / (20 ** 3), fri, mon, sat, sun, thur, tue, wed]).reshape(1, -1)
             loaded_model = joblib.load(str(x["Station_number"][0]) + ".sav")
             avail_bikes = loaded_model.predict(test_arr)
             avail_bikes = int(avail_bikes[0])
+            # Returns information as a dataframe to be read in HTML
             result = pd.DataFrame({"available_bikes": [avail_bikes], "available_bike_stands": [(40 - avail_bikes)],"time": [(day +"\n" + time_from_midnight + ":00:00")]})
             return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=result)
+
+        #Otherwise it will select the average values for the weather for a day and month previously gone by
         else:
             avg_day_over = "SELECT AVG(temp_val), AVG(rain_val), AVG(wind_val) " \
                            "FROM weather_hourDB.weather_history " \
-                           "where weekday(date) = " + str(day_check) +" and month(date) = " + str(month_temp) + ";"
+                           "where weekday(date) = " + str(day_check) +" and month(date) = " + str(month_temp) + " and latitude = " + lat[0]  +" and longitude = " + long[0] + ";"
             avg_day_db = pd.read_sql_query(avg_day_over, engine)
             temp_val = avg_day_db["AVG(temp_val)"].values[0]
             rain_val = avg_day_db["AVG(rain_val)"].values[0]
@@ -184,6 +201,7 @@ def station(station_id):
             loaded_model = joblib.load(str(x["Station_number"][0]) + ".sav")
             avail_bikes = loaded_model.predict(test_arr)
             avail_bikes = int(avail_bikes[0])
+            #Returns information as a dataframe to be read in HTML
             result = pd.DataFrame({"available_bikes": [avail_bikes], "available_bike_stands": [(40 - avail_bikes)], "time": [(day + " " +  time_from_midnight + ":00:00")]})
             return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=result)
 
@@ -202,7 +220,10 @@ def station(station_id):
             return "<h1>Error 404 - Page Not Found</h1>"
         # calls station_weather function returning all info weather database with longitude and latitude from above
         y = station_weather(engine, lat, long)
-        return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=x)
+        time_object = datetime.datetime.now()
+        time_from_midnight = str(time_object.strftime("%H"))
+        result = pd.DataFrame({"available_bikes": [x.available_bikes[0]], "available_bike_stands": [x.available_bike_stands[0]], "time": [(time_from_midnight + ":00:00")]})
+        return render_template("stations_individual.html", indiv_stat=x, weather_data=y, user=result)
 
 @app.route("/allstations")
 def allstations():
