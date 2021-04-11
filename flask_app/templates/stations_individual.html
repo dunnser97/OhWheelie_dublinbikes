@@ -58,7 +58,7 @@
         </div>
         <div id="basic_info">
         <table><tr><th><h1>Predicted Bike Availability
-        <form action = "http://localhost:5000/allstations/106" method = "POST">
+        <form action = "/allstations/{{ indiv_stat.Station_number[0] }}" method = "POST">
             <select name="days" id="days">
             <option value= -1 selected>Days</option>
             <option value= 0 >Monday</option>
