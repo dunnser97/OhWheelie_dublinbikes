@@ -15,71 +15,71 @@
                 <li><a href="/about">About</a></li>
             </ul>
         </div>
-            <table><th><h1>{{ indiv_stat.address[0] }}</h1></th> </table>
+        <table><th><h1>{{ indiv_stat.address[0] }}</h1></th> </table>
 
-            <table>
-                <tr>
-                    <th>Station number</th>
-                    <th>Available Bikes</th>
-                    <th>Available Bike Stands</th>
-                    <th>Most recent update</th>
-                    <th>Status</th>
-                    <th>Weather</th>
-                    <th>Weather Icon</th>
-                    <th>View on Map</th>
-                </tr>
+        <table>
+            <tr>
+                <th>Station number</th>
+                <th>Available Bikes</th>
+                <th>Available Bike Stands</th>
+                <th>Most recent update</th>
+                <th>Status</th>
+                <th>Weather</th>
+                <th>Weather Icon</th>
+                <th>View on Map</th>
+            </tr>
 
-                <tr>
-                    <th>{{ indiv_stat.Station_number[0] }}</th>
-                    <th>{{ indiv_stat.available_bikes[0] }}</th>
-                    <th>{{ indiv_stat.available_bike_stands[0] }}</th>
-                    <th><a id="demo"></a></th>
-                    <th>{{ indiv_stat.status[0] }}</th>
-                    <th>{{ weather_data.weather_symbol[0] }} <br> {{weather_data.temp_val[0]}}<span>&#176;</span>C <br> {{weather_data.rain_val[0]}}mm</th>
-                    <th><img src="/static/images/{{weather_data.weather_symbol[0]}}.png"></th>
-                    <th><a onclick='save_zoom()' href="/"><img src={{url_for('static', filename='marker.png')}}></a></th>
-                </tr>
-            </table>
+            <tr>
+                <th>{{ indiv_stat.Station_number[0] }}</th>
+                <th>{{ indiv_stat.available_bikes[0] }}</th>
+                <th>{{ indiv_stat.available_bike_stands[0] }}</th>
+                <th><a id="demo"></a></th>
+                <th>{{ indiv_stat.status[0] }}</th>
+                <th>{{ weather_data.weather_symbol[0] }} <br> {{weather_data.temp_val[0]}}<span>&#176;</span>C <br> {{weather_data.rain_val[0]}}mm</th>
+                <th><img src="/static/images/{{weather_data.weather_symbol[0]}}.png"></th>
+                <th><a onclick='save_zoom()' href="/"><img src={{url_for('static', filename='marker.png')}}></a></th>
+            </tr>
+        </table>
         <div class="graph">
-        <button  id="Temperature" onclick="Temperature()">Temperature</button>
-        <button  id="Percipitation" onclick="percipitation()">Rainfall</button>
-        <div class="chart">
-            <div id = 'Weather_chart'></div>
-        </div>
+            <button  id="Temperature" onclick="Temperature()">Temperature</button>
+            <button  id="Percipitation" onclick="percipitation()">Rainfall</button>
+            <div class="chart">
+                <div id = 'Weather_chart'></div>
+            </div>
         </div>
         <div id = 'columnchart_values'></div>
         </div>
-        <div class="graph">
-            <button  onclick="draw_avg_bikes()" >Avg. Bike Occupancy Hourly</button>
-            <button onclick="avg_bikes_day()">Avg. Bike Occupancy Daily</button>
-            <div class="chart">
-                <div id = 'bike_values'></div>
-            </div>
+    <div class="graph">
+        <button  onclick="draw_avg_bikes()" >Avg. Bike Occupancy Hourly</button>
+        <button onclick="avg_bikes_day()">Avg. Bike Occupancy Daily</button>
+        <div class="chart">
+            <div id = 'bike_values'></div>
         </div>
-        <div id="basic_info">
+    </div>
+    <div id="basic_info">
         <table><tr><th><h1>Predicted Bike Availability
-        <form action = "/allstations/{{ indiv_stat.Station_number[0] }}" method = "POST">
-            <select name="days" id="days">
-            <option value= -1 selected>Days</option>
-            <option value= 0 >Monday</option>
-            <option value= 1 >Tuesday</option>
-            <option value= 2>Wednesday</option>
-            <option value= 3>Thursday</option>
-            <option value= 4>Friday</option>
-            <option value= 5>Saturday</option>
-            <option value= 6>Sunday</option>
-        </select>
-        <select name="times" id="times" onload="timechange()">
-            <option value= -1 selected>Times</option>
-        </select>
-            <input type="submit" class="updatebutton">
-        </form>
-        </h1></th></tr></table>
-            <table>
-        <tr>
-        <th>Available Bikes</th>
-                    <th>Available Bike Stands</th>
-                    <th>Time of Bike availability</th>
+            <form action = "/allstations/{{ indiv_stat.Station_number[0] }}" method = "POST">
+                <select name="days" id="days">
+                    <option value= -1 selected>Days</option>
+                    <option value= 0 >Monday</option>
+                    <option value= 1 >Tuesday</option>
+                    <option value= 2>Wednesday</option>
+                    <option value= 3>Thursday</option>
+                    <option value= 4>Friday</option>
+                    <option value= 5>Saturday</option>
+                    <option value= 6>Sunday</option>
+                </select>
+                <select name="times" id="times" onload="timechange()">
+                    <option value= -1 selected>Times</option>
+                </select>
+                <input type="submit" class="updatebutton">
+            </form>
+            </h1></th></tr></table>
+        <table>
+            <tr>
+                <th>Available Bikes</th>
+                <th>Available Bike Stands</th>
+                <th>Time of Bike availability</th>
             </tr>
             <tr>
                 <th>{{user.available_bikes[0]}}</th>
@@ -87,15 +87,15 @@
                 <th>{{user.time[0]}}</th>
             </tr>
         </table>
-        </div>
-        <script>
+    </div>
+    <script>
         var x ='{{ indiv_stat.Station_number[0] }}';
         var long = '{{indiv_stat.longitude[0]}}';
         var lat = '{{indiv_stat.latitude[0]}}';
 
         function save_zoom(){
-        localStorage.setItem("coord", long);
-        localStorage.setItem("coord2", lat);
+            localStorage.setItem("coord", long);
+            localStorage.setItem("coord2", lat);
         }
 
         var d = '{{indiv_stat.time[0]}}';
@@ -105,7 +105,7 @@
         google.charts.load('current', {'packages':['corechart']});
         google.charts.setOnLoadCallback(Temperature);
 
-        </script>
+    </script>
     <script  src="{{ url_for('static', filename='individ.js') }}" type="text/javascript"></script>
     </body>
 
