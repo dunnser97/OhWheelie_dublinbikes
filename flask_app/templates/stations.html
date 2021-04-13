@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-    <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
     <script  src="{{ url_for('static', filename='stations.js') }}" type="text/javascript"></script>
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
 
@@ -18,7 +17,8 @@
     </head>
 
     <body class="stationspage">
-
+        
+        <!--Search bar. filterSearch() function will be called with each keystroke, filtering the table by the user's query. -->
         <div class="search">
             <input type="text" id="userInput" onkeyup="filterSearch()" placeholder="Search for stations..." title="Type in a name">
         </div>
