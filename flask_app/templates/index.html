@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Map</title>
+
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAM1KbWMsUq_hRqIYecxhPttUU11NtPM4Y&callback=initMap" defer></script>
+        <script src="https://www.gstatic.com/charts/loader.js"></script>
+        <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
+        <script  src="{{ url_for('static', filename='app.js') }}" type="text/javascript"></script>
+
+        <style>
+
+        </style>
+    </head>
+    <div class="nav">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/allstations">Stations</a></li>
+            <li><a href="/about">About</a></li>
+        </ul>
+    </div>
+    <body>
+        <div id="loading"><h1>Loading Map...</h1></div>
+        <div id="map"></div>
+        <div style="display: none;" id="weather_map"></div>
+        <div style="'display: none" id="loading_buffer"></div>
+        <div style="display: none" id="bike_values"></div>
+        <div style="display: none" id="columnchart_values"></div>
+        <div style="display: none;" id="legend"><h3>Legend</h3></div>
+    </body>
+</html>

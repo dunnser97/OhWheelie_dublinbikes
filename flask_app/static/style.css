@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
 
 /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
+* element that contains the map. */
 #map {
-  height: 93%;
+    height: 93%;
 }
 
 /* Optional: Makes the sample page fill the window. */
@@ -16,20 +16,20 @@ body {
     padding: 0;
 
 }
+
 #legend {
-    font-family: Arial, sans-serif;
     background: #ffd8b1;
-    padding: 2%;
-    margin: 2%;
+    padding: 10px;
+    margin: 10px;
     border: 3px solid #FD4363;
-  }
+}
 
 button {
     /* https://www.fabriziovanmarciano.com/button-styles/ */
     color: #20bf6b !important;
-    text-transform: uppercase;
+    text-transform: uppercase;ú
     background: #ffffff;
-    padding: 3%;
+    padding: 10px;
     border: 4px solid #20bf6b !important;
     border-radius: 6px;
     display: inline-block;
@@ -41,61 +41,36 @@ button:hover {
     border-radius: 50px;
     border-color: #494949 !important;
     transition: all 0.3s ease 0s;}
-    table, td, th {
+
+table, td, th {
     text-align:center
 }
 
-th {
-    color: #FD4363;
+
+#over_map, #weather_map {
+    background: #fff;
+    border: 3px solid #5FAFB0;
+    height: 113px;
+    z-index: 2;
+    margin: auto;
+    position: fixed;
 }
 
-#over_map{
-        overflow: auto;
-        font-family: Arial, sans-serif;
-        background: #fff;
-        padding: 0px;
-        margin: 0px;
-        border: 3px solid #5FAFB0;
-       background-position: 0 0;
-	   height: 10%;
-	   max-width: 30%;
-       [COLOR="Red"]position: absolute;
-       left: 0;
-       bottom: 0;[/COLOR]
-	   z-index: 2;}
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
 
+td {
+    color:white;
 
+}
 
-#weather_map {
+td a {
+    list-style-type:none;
+}
 
-    overflow: auto;
-	font-family: Arial, sans-serif;
-    background: #fff;
-    padding: 0px;
-    margin: 0px;
-    border: 3px solid #7ECD94;
-	background-position: 0 0;
-	height: 8%;
-	width: 30%;
-    [COLOR="Red"]position: absolute;
-    right: 0;
-    bottom: 0;[/COLOR]
-	z-index: 2;}
-
-#loading_buffer {
-    text-align: center;
-	font-family: Arial, sans-serif;
-    background: #fff;
-    padding: 0px;
-    margin: 0px;
-    border: 3px solid #7ECD94;
-	background-position: 0 0;
-	height: 20px;
-	width: 30%;
-    [COLOR="Red"]position: absolute;
-    right: 0;
-    bottom: 0;[/COLOR]
-	z-index: 2;}
 
 .nav {
     background-color: #7EC694;
@@ -129,7 +104,7 @@ th {
     border-radius: 50px;
     border-color: #494949 !important;
     transition: all 0.3s ease 0s;}
-}
+
 
 .station th, tr{
     padding: 25px;
@@ -147,19 +122,24 @@ th {
     margin-right: auto;
 }
 
+
+
 #searchresults {
     color: white;
     font-size: 22px;
-}
-
-#stationspage {
-    background: url(bike.png);
-    background-size: 300px;
+    margin: 20px;
 }
 
 #searchresults h1 {
     color: black;
     text-align: center;
+
+}
+
+h1 {
+    font-size: 40px;
+    margin:0px;
+    padding: 0px;
 }
 
 #searchresults a:link {
@@ -173,27 +153,60 @@ th {
 }
 
 
-#searchresults table {
+table #searchresults{
     width: 900px;
+}
+
+table {
     margin-left: auto;
     margin-right: auto;
 }
 
-#searchresults th {
+th {
     padding: 20px;
     background-color: #5FAFB0;
 }
 
+td {
+    padding: 20px;
+    background-color: #5FAFB0;
+}
+
+th {
+    color: white;
+}
+
+
+
+.stationspage {
+    background: url(bike.png);
+    background-size: 300px;
+}
+
+
+
 #basic_info {
-    overflow: hidden;
-    margin-left: 20%;
-    margin-top: 20px;
-    width: 1000px;
-    height: 170px;
-    }
-#divider    {
-    clear: left;
-    }
+    margin-top: 30px;
+}
+
+.graph {
+    float: left;
+    border-radius: 5px;
+    background-color: #7EC694;
+    width: 45%;
+    padding: 20px;
+    margin: 1em;
+    overflow: auto;
+}
+
+
+.chart  {
+    width: 95%;
+    border: 4px solid black;
+    margin: .5em auto;
+
+}
+
 .temp  {
     box-sizing: content-box;
     float: left;
@@ -204,7 +217,7 @@ th {
     overflow: auto;
     position: static;
     margin: 0;
- }
+}
 #weather_sym    {
     width: 100px;
     height: auto;
@@ -214,10 +227,44 @@ img1 {
     max-height: 50px;
 }
 
-#searchresults th {
-    color: white;
-}
+
 
 p {
     text-align: center;
+}
+
+#basic_info div {
+    background-color: #5FAFB0;
+    color: white;
+    font-size: 15px;
+}
+
+.temp div {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#find_stations_page {
+    background: url(bike.png);
+    background-size: 300px;
+}
+
+h4 {
+    padding: 10px;
+    margin:0px;
+    text-align: center;
+}
+
+h5 {
+    padding: 0px;
+    margin:0px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 400;
+}
+
+#details_button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
