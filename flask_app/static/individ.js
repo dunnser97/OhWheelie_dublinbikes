@@ -133,7 +133,7 @@ function timechange()   {
     //Assigns Time for select option loops over 24 hour period in format HH:MM:SS
         var today = new Date();
         var time_link = document.getElementById("times");
-        for (i=0; i<24; i++)    {
+        for (i=6; i<24; i++)    {
             current_time = i.toString() + ":00:00"
             time_link.innerHTML = time_link.innerHTML + '<option value="' + i + '">' + current_time + '</option>';
         }
