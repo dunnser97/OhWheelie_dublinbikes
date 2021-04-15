@@ -15,7 +15,7 @@
                 <li><a href="/about">About</a></li>
             </ul>
         </div>
-        <table><th><h1>"{{ indiv_stat.address[0] }}"</h1></th> </table>
+        <table><th><h1>{{ indiv_stat.address[0] }}</h1></th> </table>
 
         <table>
             <tr>
@@ -30,12 +30,12 @@
             </tr>
 
             <tr>
-                <th>"{{ indiv_stat.Station_number[0] }}"</th>
-                <th>"{{ indiv_stat.available_bikes[0] }}"</th>
-                <th>"{{ indiv_stat.available_bike_stands[0] }}"</th>
+                <th>{{ indiv_stat.Station_number[0] }}</th>
+                <th>{{ indiv_stat.available_bikes[0] }}</th>
+                <th>{{ indiv_stat.available_bike_stands[0] }}</th>
                 <th><a id="demo"></a></th>
-                <th>"{{ indiv_stat.status[0] }}"</th>
-                <th>"{{ weather_data.weather_symbol[0] }}" <br> "{{weather_data.temp_val[0]}}"<span>&#176;</span>C <br> "{{weather_data.rain_val[0]}}"mm</th>
+                <th>{{ indiv_stat.status[0] }}</th>
+                <th>{{ weather_data.weather_symbol[0] }} <br> {{weather_data.temp_val[0]}}<span>&#176;</span>C <br> {{weather_data.rain_val[0]}}mm</th>
                 <th><img src="/static/images/{{weather_data.weather_symbol[0]}}.png"></th>
                 <th><a onclick='save_zoom()' href="/"><img src={{url_for('static', filename='marker.png')}}></a></th>
             </tr>
@@ -58,7 +58,7 @@
     </div>
     <div id="basic_info">
         <table><tr><th><h1>Predicted Bike Availability
-            <form action = "/allstations/'{{ indiv_stat.Station_number[0] }}'" method = "POST">
+            <form action = "/allstations/{{ indiv_stat.Station_number[0] }}" method = "POST">
                 <select name="days" id="days">
                     <option value= -1 selected>Days</option>
                     <option value= 0 >Monday</option>
