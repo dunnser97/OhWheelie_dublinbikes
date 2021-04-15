@@ -1,5 +1,5 @@
 import joblib
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import pandas as pd
 from sqlalchemy import create_engine
 import dbinfo
@@ -34,6 +34,8 @@ def nearest_stat(x):
     return closest(dict, simulated_user_location)
 
 @app.route("/")
+def open():
+    return redirect(url_for('hello'))
 
 @app.route("/index")
 def hello():
